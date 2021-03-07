@@ -17,6 +17,7 @@ docs/_build/
 .ipynb_checkpoints/
 
 # Misc
+.antlr/
 __pycache__/
 .DS_Store
 .vscode/
