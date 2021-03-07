@@ -1,95 +1,59 @@
-# Ported from latex2sympy by @augustt198
-# https://github.com/augustt198/latex2sympy
-# See license in LICENSE.txt
+from ._antlr.latexlexer import LaTeXLexer
+from ._antlr.latexparser import LaTeXParser
 from .errors import LaTeXParsingError
+from antlr4.error import ErrorListener
+from antlr4 import InputStream, CommonTokenStream
 import sympy
-from sympy.external import import_module
 from sympy.printing.str import StrPrinter
 from sympy.physics.quantum.state import Bra, Ket
 
 
-LaTeXParser = LaTeXLexer = MathErrorListener = None
+class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
+    def __init__(self, src):
+        super(ErrorListener.ErrorListener, self).__init__()
+        self.src = src
 
-try:
-    LaTeXParser = import_module(
-        "sympy.parsing.latex._antlr.latexparser",
-        import_kwargs={"fromlist": ["LaTeXParser"]},
-    ).LaTeXParser
-    LaTeXLexer = import_module(
-        "sympy.parsing.latex._antlr.latexlexer",
-        import_kwargs={"fromlist": ["LaTeXLexer"]},
-    ).LaTeXLexer
-except Exception:
-    pass
+    def syntaxError(self, recog, symbol, line, col, msg, e):
+        fmt = "%s\n%s\n%s"
+        marker = "~" * col + "^"
 
-ErrorListener = import_module(
-    "antlr4.error.ErrorListener",
-    warn_not_installed=True,
-    import_kwargs={"fromlist": ["ErrorListener"]},
-)
-
-
-if ErrorListener:
-
-    class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
-        def __init__(self, src):
-            super(ErrorListener.ErrorListener, self).__init__()
-            self.src = src
-
-        def syntaxError(self, recog, symbol, line, col, msg, e):
-            fmt = "%s\n%s\n%s"
-            marker = "~" * col + "^"
-
-            if msg.startswith("missing"):
-                err = fmt % (msg, self.src, marker)
-            elif msg.startswith("no viable"):
+        if msg.startswith("missing"):
+            err = fmt % (msg, self.src, marker)
+        elif msg.startswith("no viable"):
+            err = fmt % ("I expected something else here", self.src, marker)
+        elif msg.startswith("mismatched"):
+            names = LaTeXParser.literalNames
+            expected = [
+                names[i] for i in e.getExpectedTokens() if i < len(names)
+            ]
+            if len(expected) < 10:
+                expected = " ".join(expected)
+                err = fmt % (
+                    "I expected one of these: " + expected,
+                    self.src,
+                    marker,
+                )
+            else:
                 err = fmt % (
                     "I expected something else here",
                     self.src,
                     marker,
                 )
-            elif msg.startswith("mismatched"):
-                names = LaTeXParser.literalNames
-                expected = [
-                    names[i] for i in e.getExpectedTokens() if i < len(names)
-                ]
-                if len(expected) < 10:
-                    expected = " ".join(expected)
-                    err = fmt % (
-                        "I expected one of these: " + expected,
-                        self.src,
-                        marker,
-                    )
-                else:
-                    err = fmt % (
-                        "I expected something else here",
-                        self.src,
-                        marker,
-                    )
-            else:
-                err = fmt % ("I don't understand this", self.src, marker)
-            raise LaTeXParsingError(err)
+        else:
+            err = fmt % ("I don't understand this", self.src, marker)
+        raise LaTeXParsingError(err)
 
 
-def parse_latex(sympy):
-    antlr4 = import_module("antlr4", warn_not_installed=True)
+def parse_latex(latex_string):
 
-    if None in [antlr4, MathErrorListener]:
-        raise ImportError(
-            "LaTeX parsing requires the antlr4 python package,"
-            " provided by pip (antlr4-python2-runtime or"
-            " antlr4-python3-runtime) or"
-            " conda (antlr-python-runtime)"
-        )
+    matherror = MathErrorListener(latex_string)
 
-    matherror = MathErrorListener(sympy)
-
-    stream = antlr4.InputStream(sympy)
+    stream = InputStream(latex_string)
     lex = LaTeXLexer(stream)
     lex.removeErrorListeners()
     lex.addErrorListener(matherror)
 
-    tokens = antlr4.CommonTokenStream(lex)
+    tokens = CommonTokenStream(lex)
     parser = LaTeXParser(tokens)
 
     # remove default console error listener
