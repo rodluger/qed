@@ -41,7 +41,11 @@ setup(
         "write_to_template": '__version__ = "{version}"\n',
     },
     cmdclass={"antlr": antlr},
-    install_requires=["setuptools_scm", "sympy>=1.7.1"],
+    install_requires=[
+        "setuptools_scm",
+        "sympy>=1.7.1",
+        "antlr4-python3-runtime",
+    ],
     setup_requires=["setuptools_scm"],
     include_package_data=True,
     zip_safe=False,

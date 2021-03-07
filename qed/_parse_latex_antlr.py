@@ -1,13 +1,11 @@
 # Ported from latex2sympy by @augustt198
 # https://github.com/augustt198/latex2sympy
 # See license in LICENSE.txt
-
+from .errors import LaTeXParsingError
 import sympy
 from sympy.external import import_module
 from sympy.printing.str import StrPrinter
 from sympy.physics.quantum.state import Bra, Ket
-
-from .errors import LaTeXParsingError
 
 
 LaTeXParser = LaTeXLexer = MathErrorListener = None
@@ -45,10 +43,16 @@ if ErrorListener:
             if msg.startswith("missing"):
                 err = fmt % (msg, self.src, marker)
             elif msg.startswith("no viable"):
-                err = fmt % ("I expected something else here", self.src, marker)
+                err = fmt % (
+                    "I expected something else here",
+                    self.src,
+                    marker,
+                )
             elif msg.startswith("mismatched"):
                 names = LaTeXParser.literalNames
-                expected = [names[i] for i in e.getExpectedTokens() if i < len(names)]
+                expected = [
+                    names[i] for i in e.getExpectedTokens() if i < len(names)
+                ]
                 if len(expected) < 10:
                     expected = " ".join(expected)
                     err = fmt % (
@@ -57,7 +61,11 @@ if ErrorListener:
                         marker,
                     )
                 else:
-                    err = fmt % ("I expected something else here", self.src, marker)
+                    err = fmt % (
+                        "I expected something else here",
+                        self.src,
+                        marker,
+                    )
             else:
                 err = fmt % ("I don't understand this", self.src, marker)
             raise LaTeXParsingError(err)
@@ -191,15 +199,25 @@ def convert_postfix_list(arr, i=0):
             if i > 0:
                 left = convert_postfix(arr[i - 1])
                 right = convert_postfix(arr[i + 1])
-                if isinstance(left, sympy.Expr) and isinstance(right, sympy.Expr):
+                if isinstance(left, sympy.Expr) and isinstance(
+                    right, sympy.Expr
+                ):
                     left_syms = convert_postfix(arr[i - 1]).atoms(sympy.Symbol)
-                    right_syms = convert_postfix(arr[i + 1]).atoms(sympy.Symbol)
+                    right_syms = convert_postfix(arr[i + 1]).atoms(
+                        sympy.Symbol
+                    )
                     # if the left and right sides contain no variables and the
                     # symbol in between is 'x', treat as multiplication.
-                    if len(left_syms) == 0 and len(right_syms) == 0 and str(res) == "x":
+                    if (
+                        len(left_syms) == 0
+                        and len(right_syms) == 0
+                        and str(res) == "x"
+                    ):
                         return convert_postfix_list(arr, i + 1)
             # multiply by next
-            return sympy.Mul(res, convert_postfix_list(arr, i + 1), evaluate=False)
+            return sympy.Mul(
+                res, convert_postfix_list(arr, i + 1), evaluate=False
+            )
     else:  # must be derivative
         wrt = res[0]
         if i == len(arr) - 1:
@@ -433,7 +451,14 @@ def convert_func(func):
         name = func.func_normal().start.text[1:]
 
         # change arc<trig> -> a<trig>
-        if name in ["arcsin", "arccos", "arctan", "arccsc", "arcsec", "arccot"]:
+        if name in [
+            "arcsin",
+            "arccos",
+            "arctan",
+            "arccsc",
+            "arcsec",
+            "arccot",
+        ]:
             name = "a" + name[3:]
             expr = getattr(sympy.functions, name)(arg, evaluate=False)
         if name in ["arsinh", "arcosh", "artanh"]:
@@ -460,7 +485,17 @@ def convert_func(func):
             else:
                 func_pow = convert_atom(func.supexpr().atom())
 
-        if name in ["sin", "cos", "tan", "csc", "sec", "cot", "sinh", "cosh", "tanh"]:
+        if name in [
+            "sin",
+            "cos",
+            "tan",
+            "csc",
+            "sec",
+            "cot",
+            "sinh",
+            "cosh",
+            "tanh",
+        ]:
             if func_pow == -1:
                 name = "a" + name
                 should_pow = False
