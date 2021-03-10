@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [master,dev]
+  pull_request:
+    branches: [master]
+
+jobs:
+  tests:
+    name: "py${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          python -m pip install .
+
+      - name: Run the unit tests
+        run: python -m pytest -v tests
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: junit/test-*.xml
+          comment_on_pr: false

@@ -44,10 +44,9 @@ setup(
     install_requires=[
         "setuptools_scm",
         "sympy>=1.7.1",
-        "antlr4-python3-runtime",
+        "antlr4-python3-runtime==4.7.2",
     ],
     setup_requires=["setuptools_scm"],
     include_package_data=True,
     zip_safe=False,
 )
-
