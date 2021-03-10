@@ -82,9 +82,16 @@ def parse_latex(latex_string):
     parser.removeErrorListeners()
     parser.addErrorListener(matherror)
 
-    relation = parser.math().relation()
+    # Parse things that can be interpreted as math
+    math = parser.math()
+    relation = math.relation()
     expr = convert_relation(relation)
 
+    # If there's anything left, raise an error
+    unknown = math.unknown()
+    unknown_text = unknown.getText()
+    if len(unknown_text):
+        raise LaTeXParsingError("Could not match {}".format(unknown_text))
     return expr
 
 
@@ -456,7 +463,10 @@ def convert_func(func):
 
         if name == "log" or name == "ln":
             if func.subexpr():
-                base = convert_expr(func.subexpr().expr())
+                if func.subexpr().expr():
+                    base = convert_expr(func.subexpr().expr())
+                else:
+                    base = convert_atom(func.subexpr().atom())
             elif name == "log":
                 base = 10
             elif name == "ln":

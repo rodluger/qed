@@ -43,6 +43,10 @@ IGNORE:
 		| '\\"'
 		| '\\('
 		| '\\='
+		| '\\big'
+		| '\\bigg'
+		| '\\Big'
+		| '\\Bigg'
 	) -> skip;
 
 ADD: '+';
@@ -149,7 +153,7 @@ BANG: '!';
 
 SYMBOL: '\\' [a-zA-Z]+;
 
-math: relation;
+math: relation unknown;
 
 relation:
 	relation (EQUAL | LT | LTE | GT | GTE | NEQ) relation
@@ -304,3 +308,5 @@ supexpr: CARET (atom | L_BRACE expr R_BRACE);
 
 subeq: UNDERSCORE L_BRACE equality R_BRACE;
 supeq: UNDERSCORE L_BRACE equality R_BRACE;
+
+unknown: .*?;

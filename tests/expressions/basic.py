@@ -1,6 +1,6 @@
 from .sympy_imports import *
 
-pairs = [
+basic = [
     (r"0", 0),
     (r"1", 1),
     (r"-3.14", Mul(-1, 3.14)),
@@ -175,9 +175,7 @@ pairs = [
     (r"a \negmedspace b", Mul(a, b)),
     (r"a \negthickspace b", Mul(a, b)),
     (r"\int x \, dx", Integral(x, x)),
-    #
-    # -- Issues below --
-    #
     (r"\log_2 x", log(x, 2)),
     (r"\log_a x", log(x, a)),
+    (r"\big(x + 1\big)^2", Add(x, 1) ** 2),
 ]
