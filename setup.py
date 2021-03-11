@@ -36,6 +36,7 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     packages=find_packages(),
+    data_files=["qed/qed.sty", "qed/LaTeX.g4"],
     use_scm_version={
         "write_to": os.path.join("qed", "qed_version.py"),
         "write_to_template": '__version__ = "{version}"\n',
@@ -49,5 +50,10 @@ setup(
     setup_requires=["setuptools_scm"],
     include_package_data=True,
     zip_safe=False,
-    entry_points={"console_scripts": ["qed=qed:entry_point"]},
+    entry_points={
+        "console_scripts": [
+            "qed=qed.entry_points:qed",
+            "qed-setup=qed.entry_points:qed_setup",
+        ]
+    },
 )

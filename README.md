@@ -7,7 +7,13 @@ Install:
 python -m pip install .
 ```
 
-File ``ms.tex``:
+In the directory containing your tex files, run
+
+```bash
+qed-setup
+```
+
+Create a file ``ms.tex``:
 
 ```latex
 \documentclass{article}
@@ -36,7 +42,7 @@ An indeterminate statement:
 \end{document}
 ```
 
-Compile:
+Build it:
 
 ```bash
 pdflatex ms.tex
@@ -44,6 +50,6 @@ qed ms.tex
 pdflatex ms.tex
 ```
 
-File ``ms.pdf``:
+The compiled ``ms.pdf``:
 
-![example](example.png)
+![example](.github/example.png)

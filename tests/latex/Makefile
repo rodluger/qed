@@ -1,5 +1,6 @@
 .PHONY : clean, default
 
+QED_SETUP   = qed-setup
 QED         = qed ms.tex
 PDFLATEX    = pdflatex -interaction=nonstopmode -halt-on-error
 TEX_FILES   = ms
@@ -21,7 +22,7 @@ else\
 fi
 
 default: ms.pdf clean
-	@mkdir -p .qed
+	@${QED_SETUP}
 	@${BUILD_LATEX}
 	@${QED}
 	@${BUILD_LATEX}
