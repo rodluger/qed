@@ -1,6 +1,8 @@
 qed
 ===
 
+[![very-preliminary](https://img.shields.io/badge/very-preliminary-yellow)]() [![super-hacky](https://img.shields.io/badge/super-hacky-orange)]() [![super-hacky](https://img.shields.io/badge/you've-been%20warned-red)]() [![tests](https://github.com/rodluger/qed/actions/workflows/tests.yml/badge.svg)](https://github.com/rodluger/qed/actions/workflows/tests.yml)
+
 Install:
 
 ```bash

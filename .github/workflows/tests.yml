@@ -31,7 +31,7 @@ jobs:
 
       - name: Run the unit tests
         shell: bash -l {0}
-        run: python -m pytest -v tests
+        run: python -m pytest -v tests --junitxml=junit/test-results.xml
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
