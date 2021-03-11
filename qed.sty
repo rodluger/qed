@@ -1,0 +1,56 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{qed}[2021/03/11 Automagical equation checks]
+
+% Imports
+\RequirePackage{mathtools} % equation tags
+\RequirePackage{fancyvrb} % outputing to files
+\RequirePackage{xcolor} % custom colors
+\RequirePackage{ifxetex} % enable fontawesome for xetex
+\ifxetex
+  \RequirePackage{fontspec}
+  \defaultfontfeatures{Extension = .otf}
+\fi
+\RequirePackage{fontawesome} % custom symbols
+
+% Define equation tags for passing / failing expressions
+\definecolor{testpasscolor}{rgb}{0.13333333,0.5254902,0.22745098}
+\definecolor{testfailcolor}{rgb}{0.79607843,0.14117647,0.19215686}
+\definecolor{testunknowncolor}{rgb}{1.0,0.88,0.30}
+\newcommand{\codeicon}{{\color{linkcolor}\faCloudDownload}}
+\newcommand{\testpassicon}{{\color{testpasscolor}\faCheck}}
+\newcommand{\testfailicon}{{\color{testfailcolor}\faTimes}}
+\newcommand{\testunknownicon}{{\color{testunknowncolor}\faQuestion}}
+
+% Custom equation tags
+\newtagform{eqtag}[]{(}{)}
+
+% QED equation counter
+\newcounter{qed}
+
+% Redefine the align environment with custom
+% equation tags and `qed' functionality
+\let\oldalign\align
+\let\endoldalign\endalign
+\renewenvironment{align}{%
+    \IfFileExists{.qed/\theqed.icon}{%
+        % Hack the equation tag appearance
+        \renewtagform{eqtag}[]{\input{.qed/\theqed.icon}\,(}{)}%
+        \usetagform{eqtag}%
+    }{%
+        % Hack the equation tag appearance
+        \renewtagform{eqtag}[]{(}{)}%
+        \usetagform{eqtag}%
+    }
+    \VerbatimOut{.qed/\theqed.tex}%
+}{
+    \endVerbatimOut%
+    % Actually display the equation
+    \begin{oldalign}%
+        \input{.qed/\theqed.tex}%
+    \end{oldalign}%
+    % Reset the equation tag
+    \renewtagform{eqtag}[]{(}{)}%
+    \usetagform{eqtag}%
+    % Increment the `qed' counter
+    \refstepcounter{qed}
+  }
