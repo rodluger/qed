@@ -2,6 +2,7 @@ from . import parse_equations
 import sys
 import os
 import shutil
+import glob
 
 
 def qed():
@@ -9,12 +10,8 @@ def qed():
     This is the entry point for the command-line script `qed`.
 
     """
-    if len(sys.argv) == 1:
-        parse_equations()
-    elif len(sys.argv) == 2:
-        parse_equations(os.path.dirname(os.path.abspath(sys.argv[1])))
-    else:
-        raise ValueError("Invalid option passed to `qed`.")
+    assert len(sys.argv) == 1, "Invalid option."
+    parse_equations()
 
 
 def qed_setup():
@@ -22,11 +19,7 @@ def qed_setup():
     This is the entry point for the command-line script `qed-setup`.
 
     """
-    # Create the temporary directory
-    if not os.path.exists(".qed"):
-        os.mkdir(".qed")
-
-    # Copy the style file over
+    assert len(sys.argv) == 1, "Invalid option."
     if not os.path.exists("qed.sty"):
         shutil.copyfile(
             os.path.join(
@@ -34,3 +27,13 @@ def qed_setup():
             ),
             "qed.sty",
         )
+
+
+def qed_clean():
+    """
+    This is the entry point for the command-line script `qed-clean`.
+
+    """
+    assert len(sys.argv) == 1, "Invalid option."
+    for file in glob.glob(".qed_*"):
+        os.remove(file)

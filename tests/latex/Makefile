@@ -1,14 +1,11 @@
 .PHONY : clean, default
 
-QED_SETUP   = qed-setup
-QED         = qed ms.tex
 PDFLATEX    = pdflatex -interaction=nonstopmode -halt-on-error
 TEX_FILES   = ms
-QED_FILES   = .qed/*
 TMP_SUFFS   = .pdf .aux .bbl .blg .log .dvi .ps .eps .out .ent Notes.bib
 RM_TMP      = \
 $(foreach d, ${TEX_FILES}, rm -rf $(foreach suff, ${TMP_SUFFS}, ${d}${suff})) \
-msNotes.bib ${QED_FILES}
+msNotes.bib
 CHECK_RERUN = grep Rerun ms.log
 TECTONIC    = $(shell command -v tectonic >/dev/null && echo true || echo false )
 BUILD_LATEX = \
@@ -22,13 +19,14 @@ else\
 fi
 
 default: ms.pdf clean
-	@${QED_SETUP}
+	@qed-setup
 	@${BUILD_LATEX}
-	@${QED}
+	@qed
 	@${BUILD_LATEX}
-	@rm .qed/*.icon
+	@qed-clean
 
 ms.pdf: ms.tex
 
 clean:
-	@$(RM_TMP)
+	@${RM_TMP}
+	@qed-clean

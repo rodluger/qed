@@ -27,27 +27,25 @@
 % QED equation counter
 \newcounter{qed}
 
-% Redefine the align environment with custom
+% Define a new `align' environment with custom
 % equation tags and `qed' functionality
-\let\oldalign\align
-\let\endoldalign\endalign
-\renewenvironment{align}{%
-    \IfFileExists{.qed/\theqed.icon}{%
+\newenvironment{qed}{%
+    \IfFileExists{.qed_\theqed.icon}{%
         % Hack the equation tag appearance
-        \renewtagform{eqtag}[]{\input{.qed/\theqed.icon}\,(}{)}%
+        \renewtagform{eqtag}[]{\input{.qed_\theqed.icon}\,(}{)}%
         \usetagform{eqtag}%
     }{%
         % Hack the equation tag appearance
         \renewtagform{eqtag}[]{(}{)}%
         \usetagform{eqtag}%
     }
-    \VerbatimOut{.qed/\theqed.tex}%
+    \VerbatimOut{.qed_\theqed.tex}%
 }{
     \endVerbatimOut%
     % Actually display the equation
-    \begin{oldalign}%
-        \input{.qed/\theqed.tex}%
-    \end{oldalign}%
+    \begin{align}%
+        \input{.qed_\theqed.tex}%
+    \end{align}%
     % Reset the equation tag
     \renewtagform{eqtag}[]{(}{)}%
     \usetagform{eqtag}%

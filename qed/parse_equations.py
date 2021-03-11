@@ -26,7 +26,7 @@ def bool_to_icon(expr):
 
 
 def parse_equations(path="."):
-    files = glob.glob(os.path.join(path, ".qed", "*.tex"))
+    files = glob.glob(os.path.join(path, ".qed_*.tex"))
     for file in files:
         with open(file, "r") as f:
             equation = f.read()

@@ -1,21 +1,27 @@
 qed
 ===
 
-[![very-preliminary](https://img.shields.io/badge/very-preliminary-yellow)]() [![super-hacky](https://img.shields.io/badge/super-hacky-orange)]() [![super-hacky](https://img.shields.io/badge/you've-been%20warned-red)]() [![tests](https://github.com/rodluger/qed/actions/workflows/tests.yml/badge.svg)](https://github.com/rodluger/qed/actions/workflows/tests.yml)
+[![very-preliminary](https://img.shields.io/badge/very-preliminary-yellow)]() [![super-hacky](https://img.shields.io/badge/super-hacky-orange)]() [![you've-been-warned](https://img.shields.io/badge/you've-been%20warned-red)]() [![tests](https://github.com/rodluger/qed/actions/workflows/tests.yml/badge.svg)](https://github.com/rodluger/qed/actions/workflows/tests.yml)
 
-Install:
+## Setup
+
+To install, clone this package and run
 
 ```bash
 python -m pip install .
 ```
 
-In the directory containing your tex files, run
+In the directory containing your TeX document, run
 
 ```bash
 qed-setup
 ```
 
-Create a file ``ms.tex``:
+This will add the package file ``qed.sty`` to the current directory.
+
+## Usage
+
+Here's a sample LaTeX document, which we'll call ``ms.tex``:
 
 ```latex
 \documentclass{article}
@@ -25,33 +31,33 @@ Create a file ``ms.tex``:
 
 A true statement:
 
-\begin{align}
+\begin{qed}
     \sin^2 x + \cos^2 x = 1
-\end{align}
+\end{qed}
 
 A false statement:
 
-\begin{align}
+\begin{qed}
     \sin\left(\frac{\pi}{2}\right) = 0
-\end{align}
+\end{qed}
 
 An indeterminate statement:
 
-\begin{align}
+\begin{qed}
     x = 2 y
-\end{align}
+\end{qed}
 
 \end{document}
 ```
 
-Build it:
+Assuming you're using `pdfTeX`, build the PDF by running
 
 ```bash
 pdflatex ms.tex
-qed ms.tex
+qed
 pdflatex ms.tex
 ```
 
-The compiled ``ms.pdf``:
+This will generate ``ms.pdf``:
 
 ![example](.github/example.png)

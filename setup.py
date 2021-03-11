@@ -54,6 +54,7 @@ setup(
         "console_scripts": [
             "qed=qed.entry_points:qed",
             "qed-setup=qed.entry_points:qed_setup",
+            "qed-clean=qed.entry_points:qed_clean",
         ]
     },
 )
