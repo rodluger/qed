@@ -21,3 +21,6 @@ docs/_build/
 __pycache__/
 .DS_Store
 .vscode/
+tests/latex/*
+!tests/latex/ms.tex
+!tests/latex/Makefile

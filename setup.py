@@ -49,4 +49,5 @@ setup(
     setup_requires=["setuptools_scm"],
     include_package_data=True,
     zip_safe=False,
+    entry_points={"console_scripts": ["qed=qed:entry_point"]},
 )

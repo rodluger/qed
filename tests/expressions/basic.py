@@ -69,7 +69,7 @@ basic = [
     (r"||x||", Abs(Abs(x))),
     (r"|x||y|", Abs(x) * Abs(y)),
     (r"||x||y||", Abs(Abs(x) * Abs(y))),
-    (r"\pi^{|xy|}", Symbol("pi") ** Abs(x * y)),
+    (r"\pi^{|xy|}", pi ** Abs(x * y)),
     (r"\int x dx", Integral(x, x)),
     (r"\int x d\theta", Integral(x, theta)),
     (r"\int (x^2 - y)dx", Integral(x ** 2 - y, x)),

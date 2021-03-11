@@ -32,6 +32,7 @@ from sympy import (
     floor,
     ceiling,
     Unequality,
+    pi,
 )
 from sympy import Add as _Add
 from sympy import Mul as _Mul

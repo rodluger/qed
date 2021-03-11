@@ -11,42 +11,6 @@ from sympy.physics.quantum.state import Bra, Ket
 __all__ = ["parse_latex"]
 
 
-class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
-    def __init__(self, src):
-        super(ErrorListener.ErrorListener, self).__init__()
-        self.src = src
-
-    def syntaxError(self, recog, symbol, line, col, msg, e):
-        fmt = "%s\n%s\n%s"
-        marker = "~" * col + "^"
-
-        if msg.startswith("missing"):
-            err = fmt % (msg, self.src, marker)
-        elif msg.startswith("no viable"):
-            err = fmt % ("I expected something else here", self.src, marker)
-        elif msg.startswith("mismatched"):
-            names = LaTeXParser.literalNames
-            expected = [
-                names[i] for i in e.getExpectedTokens() if i < len(names)
-            ]
-            if len(expected) < 10:
-                expected = " ".join(expected)
-                err = fmt % (
-                    "I expected one of these: " + expected,
-                    self.src,
-                    marker,
-                )
-            else:
-                err = fmt % (
-                    "I expected something else here",
-                    self.src,
-                    marker,
-                )
-        else:
-            err = fmt % ("I don't understand this", self.src, marker)
-        raise LaTeXParsingError(err)
-
-
 def parse_latex(latex_string):
     r"""Converts the string ``s`` to a SymPy ``Expr``
 
@@ -92,6 +56,51 @@ def parse_latex(latex_string):
     unknown_text = unknown.getText()
     if len(unknown_text):
         raise LaTeXParsingError("Could not match {}".format(unknown_text))
+
+    # Plug in constants
+    expr = plug_in_constants(expr)
+
+    return expr
+
+
+class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
+    def __init__(self, src):
+        super(ErrorListener.ErrorListener, self).__init__()
+        self.src = src
+
+    def syntaxError(self, recog, symbol, line, col, msg, e):
+        fmt = "%s\n%s\n%s"
+        marker = "~" * col + "^"
+
+        if msg.startswith("missing"):
+            err = fmt % (msg, self.src, marker)
+        elif msg.startswith("no viable"):
+            err = fmt % ("I expected something else here", self.src, marker)
+        elif msg.startswith("mismatched"):
+            names = LaTeXParser.literalNames
+            expected = [
+                names[i] for i in e.getExpectedTokens() if i < len(names)
+            ]
+            if len(expected) < 10:
+                expected = " ".join(expected)
+                err = fmt % (
+                    "I expected one of these: " + expected,
+                    self.src,
+                    marker,
+                )
+            else:
+                err = fmt % (
+                    "I expected something else here",
+                    self.src,
+                    marker,
+                )
+        else:
+            err = fmt % ("I don't understand this", self.src, marker)
+        raise LaTeXParsingError(err)
+
+
+def plug_in_constants(expr):
+    expr = expr.subs({sympy.Symbol("pi"): sympy.pi})
     return expr
 
 
