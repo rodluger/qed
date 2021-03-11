@@ -5,3 +5,4 @@ channels:
 dependencies:
   - pip>=20.3.3
   - tectonic>=0.1.11
+  - pytest>=5.4.3
