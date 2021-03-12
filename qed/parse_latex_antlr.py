@@ -101,7 +101,11 @@ class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
 
 def plug_in_constants(expr):
     expr = expr.subs(
-        {sympy.Symbol("pi"): sympy.pi, sympy.Symbol("imag"): sympy.I}
+        {
+            sympy.Symbol("pi"): sympy.pi,
+            sympy.Symbol("imag"): sympy.I,
+            sympy.Symbol("euler"): sympy.E,
+        }
     )
     return expr
 

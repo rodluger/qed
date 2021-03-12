@@ -179,4 +179,5 @@ basic = [
     (r"\log_a x", log(x, a)),
     (r"\big(x + 1\big)^2", Add(x, 1) ** 2),
     (r"\exp{\imag\pi}", -1),
+    (r"\euler^{\imag\pi}", -1),
 ]
