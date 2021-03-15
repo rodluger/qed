@@ -489,9 +489,6 @@ def convert_func(func):
                 base = sympy.E
             expr = sympy.log(arg, base, evaluate=False)
 
-        elif name == "ellipe":
-            expr = sympy.elliptic_e(arg, evaluate=False)
-
         func_pow = None
         should_pow = True
         if func.supexpr():
@@ -559,6 +556,8 @@ def convert_func(func):
         return handle_sum_or_prod(func, "product")
     elif func.FUNC_LIM():
         return handle_limit(func)
+    elif func.func_elliptic():
+        return handle_elliptic(func)
 
 
 def convert_func_arg(arg):
@@ -641,6 +640,23 @@ def handle_limit(func):
     content = convert_mp(func.mp())
 
     return sympy.Limit(content, var, approaching, direction)
+
+
+def handle_elliptic(func):
+    name = func.func_elliptic().start.text[1:]
+    parameter = convert_expr(func.parameter)
+    if func.angle:
+        angle = convert_expr(func.angle)
+        if name == "ellipe":
+            expr = sympy.elliptic_e(angle, parameter, evaluate=False)
+        else:
+            raise NotImplementedError("TODO!")
+    else:
+        if name == "ellipe":
+            expr = sympy.elliptic_e(parameter, evaluate=False)
+        else:
+            raise NotImplementedError("TODO!")
+    return expr
 
 
 def get_differential_var(d):

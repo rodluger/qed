@@ -64,6 +64,7 @@ L_BRACKET: '[';
 R_BRACKET: ']';
 
 BAR: '|';
+COMMA: ',';
 
 R_BAR: '\\right|';
 L_BAR: '\\left|';
@@ -282,8 +283,9 @@ func_normal:
 	| FUNC_TANH
 	| FUNC_ARSINH
 	| FUNC_ARCOSH
-	| FUNC_ARTANH
-	| FUNC_ELLIPE;
+	| FUNC_ARTANH;
+
+func_elliptic: FUNC_ELLIPE;
 
 func:
 	func_normal (subexpr? supexpr? | supexpr? subexpr?) (
@@ -300,7 +302,11 @@ func:
 	| FUNC_SQRT (L_BRACKET root = expr R_BRACKET)? L_BRACE base = expr R_BRACE
 	| FUNC_OVERLINE L_BRACE base = expr R_BRACE
 	| (FUNC_SUM | FUNC_PROD) (subeq supexpr | supexpr subeq) mp
-	| FUNC_LIM limit_sub mp;
+	| FUNC_LIM limit_sub mp
+	| func_elliptic (
+		(L_PAREN parameter = expr R_PAREN)
+		| (L_PAREN angle = expr COMMA parameter = expr R_PAREN)
+	);
 
 args: (expr ',' args) | expr;
 
