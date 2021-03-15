@@ -305,7 +305,9 @@ func:
 	| FUNC_LIM limit_sub mp
 	| func_elliptic (
 		(L_PAREN parameter = expr R_PAREN)
-		| (L_PAREN angle = expr COMMA parameter = expr R_PAREN)
+		| (
+			L_PAREN angle = expr (COMMA | BAR) parameter = expr R_PAREN
+		)
 	);
 
 args: (expr ',' args) | expr;
