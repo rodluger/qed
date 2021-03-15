@@ -35,6 +35,7 @@ from sympy import factorial as _factorial
 from sympy import exp as _exp
 from sympy import log as _log
 from sympy import binomial as _binomial
+from sympy import elliptic_e as _elliptic_e
 from sympy.core.relational import Eq, Ne, Lt, Le, Gt, Ge
 from sympy.physics.quantum.state import Bra, Ket
 from sympy.abc import x, y, z, a, b, c, t, k, n
@@ -82,3 +83,7 @@ def log(a, b):
 
 def binomial(n, k):
     return _binomial(n, k, evaluate=False)
+
+
+def elliptic_e(ksq):
+    return _elliptic_e(ksq, evaluate=False)

@@ -105,6 +105,11 @@ FUNC_ARSINH: '\\arsinh';
 FUNC_ARCOSH: '\\arcosh';
 FUNC_ARTANH: '\\artanh';
 
+/*
+ Special functions
+ */
+FUNC_ELLIPE: '\\ellipe';
+
 L_FLOOR: '\\lfloor';
 R_FLOOR: '\\rfloor';
 L_CEIL: '\\lceil';
@@ -277,7 +282,8 @@ func_normal:
 	| FUNC_TANH
 	| FUNC_ARSINH
 	| FUNC_ARCOSH
-	| FUNC_ARTANH;
+	| FUNC_ARTANH
+	| FUNC_ELLIPE;
 
 func:
 	func_normal (subexpr? supexpr? | supexpr? subexpr?) (

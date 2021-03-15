@@ -469,14 +469,15 @@ def convert_func(func):
         ]:
             name = "a" + name[3:]
             expr = getattr(sympy.functions, name)(arg, evaluate=False)
-        if name in ["arsinh", "arcosh", "artanh"]:
+
+        elif name in ["arsinh", "arcosh", "artanh"]:
             name = "a" + name[2:]
             expr = getattr(sympy.functions, name)(arg, evaluate=False)
 
-        if name == "exp":
+        elif name == "exp":
             expr = sympy.exp(arg, evaluate=False)
 
-        if name == "log" or name == "ln":
+        elif name == "log" or name == "ln":
             if func.subexpr():
                 if func.subexpr().expr():
                     base = convert_expr(func.subexpr().expr())
@@ -487,6 +488,9 @@ def convert_func(func):
             elif name == "ln":
                 base = sympy.E
             expr = sympy.log(arg, base, evaluate=False)
+
+        elif name == "ellipe":
+            expr = sympy.elliptic_e(arg, evaluate=False)
 
         func_pow = None
         should_pow = True
