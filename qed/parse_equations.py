@@ -1,4 +1,5 @@
 from .parse_latex_antlr import parse_latex
+from .errors import LaTeXParsingError
 import sympy
 import glob
 import os
@@ -7,7 +8,10 @@ from sympy.logic.boolalg import BooleanFalse, BooleanTrue
 
 def parse_equation(equation):
     # TODO: We can do much better than this!
-    value = sympy.simplify(parse_latex(equation)).doit()
+    try:
+        value = sympy.simplify(parse_latex(equation)).doit()
+    except LaTeXParsingError as e:
+        return e
     if (type(value) is BooleanTrue) or (value is True):
         return True
     elif (type(value) is BooleanFalse) or (value is False):
@@ -21,8 +25,12 @@ def bool_to_icon(expr):
         return r"\testpassicon"
     elif expr is False:
         return r"\testfailicon"
-    else:
+    elif expr is None:
         return r"\testunknownicon"
+    elif type(expr) is LaTeXParsingError:
+        return r"\testerroricon"
+    else:
+        raise ValueError("Expression not understood.")
 
 
 def parse_equations(path="."):
@@ -31,4 +39,5 @@ def parse_equations(path="."):
         with open(file, "r") as f:
             equation = f.read()
         with open(file.replace(".tex", ".icon"), "w") as f:
-            print(bool_to_icon(parse_equation(equation)), file=f)
+            result = parse_equation(equation)
+            print(bool_to_icon(result), file=f)

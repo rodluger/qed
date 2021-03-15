@@ -576,6 +576,7 @@ def handle_integral(func):
     if func.DIFFERENTIAL():
         int_var = get_differential_var(func.DIFFERENTIAL())
     else:
+        # TODO: Why is this branch necessary?
         for sym in integrand.atoms(sympy.Symbol):
             s = str(sym)
             if len(s) > 1 and s[0] == "d":
@@ -587,6 +588,7 @@ def handle_integral(func):
         if int_var:
             integrand = integrand.subs(int_sym, 1)
         else:
+            # TODO: No, raise an error!
             # Assume dx by default
             int_var = sympy.Symbol("x")
 
@@ -643,7 +645,16 @@ def get_differential_var(d):
 
 
 def get_differential_var_str(text):
-    for i in range(1, len(text)):
+    # TODO: This is super hacky. We should
+    # turn DIFFERENTIAL into a proper ANTLR4 expression
+    # and extract the variable directly.
+    if text.startswith("d"):
+        start = 1
+    elif text.startswith(r"\dd"):
+        start = 3
+    else:
+        raise ValueError("Cannot parse `{}`".format(text))
+    for i in range(start, len(text)):
         c = text[i]
         if not (c == " " or c == "\r" or c == "\n" or c == "\t"):
             idx = i
