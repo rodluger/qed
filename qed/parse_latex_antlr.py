@@ -59,9 +59,6 @@ def parse_latex(latex_string):
     if len(unknown_text):
         raise LaTeXParsingError("Could not match {}".format(unknown_text))
 
-    # Plug in constants
-    expr = plug_in_constants(expr)
-
     return expr
 
 
@@ -99,17 +96,6 @@ class MathErrorListener(ErrorListener.ErrorListener):  # type: ignore
         else:
             err = fmt % ("I don't understand this", self.src, marker)
         raise LaTeXParsingError(err)
-
-
-def plug_in_constants(expr):
-    expr = expr.subs(
-        {
-            sympy.Symbol("pi"): sympy.pi,
-            sympy.Symbol("imag"): sympy.I,
-            sympy.Symbol("euler"): sympy.E,
-        }
-    )
-    return expr
 
 
 def convert_relation(rel):
@@ -324,7 +310,20 @@ def convert_comp(comp):
 
 
 def convert_atom(atom):
-    if atom.LETTER():
+    if atom.symbol_custom():
+        try:
+            return custom["symbols"][atom.symbol_custom().getText()[1:]][
+                "sympy"
+            ]
+        except:
+            # Symbol not defined (!?)
+            # This should have been caught by the parser!
+            raise LaTeXParsingError(
+                "Unexpected branch! Symbol not defined: `{}`".format(
+                    atom.getText()
+                )
+            )
+    elif atom.LETTER():
         subscriptName = ""
         if atom.subexpr():
             subscript = None

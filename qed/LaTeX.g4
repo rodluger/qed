@@ -236,7 +236,12 @@ group:
 
 abs_group: BAR expr BAR;
 
-atom: (LETTER | SYMBOL) subexpr?
+symbol_custom:
+	{ self._input.LT(1).text[1:] in custom.get("symbols", {}).keys() }? SYMBOL;
+
+atom:
+	symbol_custom
+	| (LETTER | SYMBOL) subexpr?
 	| NUMBER
 	| DIFFERENTIAL
 	| mathit
@@ -287,13 +292,8 @@ func_custom:
 separator: (BAR | COMMA | SEMICOLON);
 
 func:
-	// Exponentials, logs, and trigonometric functions
-	func_normal (subexpr? supexpr? | supexpr? subexpr?) (
-		L_PAREN func_arg R_PAREN
-		| func_arg_noparens
-	)
-	// Custom functions: maximum 10 arguments
-	| func_custom (
+	// Custom functions (maximum 10 arguments)
+	func_custom (
 		(
 			L_PAREN arg0 = expr (
 				sep0 = separator arg1 = expr (
@@ -315,6 +315,11 @@ func:
 				)?
 			)? R_PAREN
 		)
+	)
+	// Exponentials, logs, and trigonometric functions
+	| func_normal (subexpr? supexpr? | supexpr? subexpr?) (
+		L_PAREN func_arg R_PAREN
+		| func_arg_noparens
 	)
 	// Generic functions: e.g. f(x)
 	| (LETTER | SYMBOL) subexpr? L_PAREN args R_PAREN

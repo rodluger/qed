@@ -178,6 +178,6 @@ basic = [
     (r"\log_2 x", log(x, 2)),
     (r"\log_a x", log(x, a)),
     (r"\big(x + 1\big)^2", Add(x, 1) ** 2),
-    (r"\exp{\imag\pi}", -1),
-    (r"\euler^{\imag\pi}", -1),
+    (r"\exp{\imag\pi}", exp(Mul(I, pi))),
+    (r"\euler^{\imag\pi}", Pow(E, Mul(I, pi))),
 ]
