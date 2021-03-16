@@ -7,7 +7,7 @@
 
 /*
  After changing this file, it is necessary to run `python setup.py antlr` in the root directory of
- the repository. This will regenerate the code in `sympy/parsing/latex/_antlr/*.py`.
+ the repository. This will regenerate the code in `qed/_antlr/*.py`.
  */
 
 grammar LaTeX;
@@ -65,6 +65,7 @@ R_BRACKET: ']';
 
 BAR: '|';
 COMMA: ',';
+SEMICOLON: ';';
 
 R_BAR: '\\right|';
 L_BAR: '\\left|';
@@ -105,11 +106,6 @@ FUNC_TANH: '\\tanh';
 FUNC_ARSINH: '\\arsinh';
 FUNC_ARCOSH: '\\arcosh';
 FUNC_ARTANH: '\\artanh';
-
-/*
- Special functions
- */
-FUNC_ELLIPE: '\\ellipe';
 
 L_FLOOR: '\\lfloor';
 R_FLOOR: '\\rfloor';
@@ -160,6 +156,7 @@ GTE_S: '\\geqslant';
 
 BANG: '!';
 
+QED: '\\q' [A-Z] ([a-zA-Z]+)?;
 SYMBOL: '\\' [a-zA-Z]+;
 
 math: relation unknown;
@@ -285,30 +282,56 @@ func_normal:
 	| FUNC_ARCOSH
 	| FUNC_ARTANH;
 
-func_elliptic: FUNC_ELLIPE;
+func_special: QED;
+
+separator: (BAR | COMMA | SEMICOLON);
 
 func:
+	// Exponentials, logs, and trigonometric functions
 	func_normal (subexpr? supexpr? | supexpr? subexpr?) (
 		L_PAREN func_arg R_PAREN
 		| func_arg_noparens
 	)
-	| (LETTER | SYMBOL) subexpr? // e.g. f(x)
-	L_PAREN args R_PAREN
+	// Special functions: maximum 10 arguments
+	| func_special (
+		(
+			L_PAREN arg0 = expr (
+				sep0 = separator arg1 = expr (
+					sep1 = separator arg2 = expr (
+						sep2 = separator arg3 = expr (
+							sep3 = separator arg4 = expr (
+								sep4 = separator arg5 = expr (
+									sep5 = separator arg6 = expr (
+										sep6 = separator arg7 = expr (
+											sep7 = separator arg8 = expr (
+												sep8 = separator arg9 = expr
+											)?
+										)?
+									)?
+								)?
+							)?
+						)?
+					)?
+				)?
+			)? R_PAREN
+		)
+	)
+	// Generic functions: e.g. f(x)
+	| (LETTER | SYMBOL) subexpr? L_PAREN args R_PAREN
+	// Integrals (definite or indefinite)
 	| FUNC_INT (subexpr supexpr | supexpr subexpr)? (
 		additive? DIFFERENTIAL
 		| frac
 		| additive
 	)
+	// Square roots
 	| FUNC_SQRT (L_BRACKET root = expr R_BRACKET)? L_BRACE base = expr R_BRACE
+	// Overlines (averages)
 	| FUNC_OVERLINE L_BRACE base = expr R_BRACE
+	// Sums and products
 	| (FUNC_SUM | FUNC_PROD) (subeq supexpr | supexpr subeq) mp
-	| FUNC_LIM limit_sub mp
-	| func_elliptic (
-		(L_PAREN parameter = expr R_PAREN)
-		| (
-			L_PAREN angle = expr (COMMA | BAR) parameter = expr R_PAREN
-		)
-	);
+	// Limits
+	| FUNC_LIM limit_sub mp;
 
 args: (expr ',' args) | expr;
 

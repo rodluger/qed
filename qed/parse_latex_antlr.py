@@ -7,6 +7,8 @@ import sympy
 from sympy.printing.str import StrPrinter
 from sympy.physics.quantum.state import Bra, Ket
 
+# TODO: Make this user-editable
+from .custom import custom
 
 __all__ = ["parse_latex"]
 
@@ -517,6 +519,8 @@ def convert_func(func):
             expr = sympy.Pow(expr, func_pow, evaluate=False)
 
         return expr
+    elif func.func_custom():
+        return handle_custom_functions(func)
     elif func.LETTER() or func.SYMBOL():
         if func.LETTER():
             fname = func.LETTER().getText()
@@ -556,8 +560,6 @@ def convert_func(func):
         return handle_sum_or_prod(func, "product")
     elif func.FUNC_LIM():
         return handle_limit(func)
-    elif func.func_elliptic():
-        return handle_elliptic(func)
 
 
 def convert_func_arg(arg):
@@ -642,21 +644,49 @@ def handle_limit(func):
     return sympy.Limit(content, var, approaching, direction)
 
 
-def handle_elliptic(func):
-    name = func.func_elliptic().start.text[1:]
-    parameter = convert_expr(func.parameter)
-    if func.angle:
-        angle = convert_expr(func.angle)
-        if name == "ellipe":
-            expr = sympy.elliptic_e(angle, parameter, evaluate=False)
-        else:
-            raise NotImplementedError("TODO!")
+def handle_custom_functions(func):
+    """
+    Handle custom functions, including user-defined ones.
+
+    """
+    # Function name
+    name = func.func_custom().start.text[1:]
+
+    # Try to match against a custom special function
+    functions = custom.get("functions", {})
+    if name in functions.keys():
+
+        # Get the arguments and the separators (',', ';', '|')
+        args = []
+        seps = []
+        for i in range(10):
+            if hasattr(func, "arg{}".format(i)):
+                argi = getattr(func, "arg{}".format(i))
+                if argi:
+                    args.append(convert_expr(argi))
+                    if hasattr(func, "sep{}".format(i)):
+                        sepi = getattr(func, "sep{}".format(i))
+                        if sepi:
+                            seps.append(sepi.getText())
+            else:
+                break
+
+        # Check for a matching syntax
+        for function in functions[name]:
+            if len(args) == len(
+                function.get("arguments", [])
+            ) and seps == function.get("separators", []):
+                return function["sympy"](*args)
+
+        # No matching syntax
+        raise LaTeXParsingError("Cannot match `{}`".format(func.getText()))
+
     else:
-        if name == "ellipe":
-            expr = sympy.elliptic_e(parameter, evaluate=False)
-        else:
-            raise NotImplementedError("TODO!")
-    return expr
+
+        # Function not defined
+        raise LaTeXParsingError(
+            "Function not defined: `{}`".format(func.getText())
+        )
 
 
 def get_differential_var(d):
@@ -673,7 +703,7 @@ def get_differential_var_str(text):
     elif text.startswith(r"\dd"):
         start = 3
     else:
-        raise ValueError("Cannot parse `{}`".format(text))
+        raise LaTeXParsingError("Cannot parse `{}`".format(text))
     for i in range(start, len(text)):
         c = text[i]
         if not (c == " " or c == "\r" or c == "\n" or c == "\t"):
