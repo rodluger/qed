@@ -237,7 +237,7 @@ group:
 abs_group: BAR expr BAR;
 
 symbol_custom:
-	{ self._input.LT(1).text[1:] in custom.get("symbols", {}).keys() }? SYMBOL;
+	{ self._input.LT(1).text[1:] in self.CUSTOM_MATH.get("symbols", {}).keys() }? SYMBOL;
 
 atom:
 	symbol_custom
@@ -287,7 +287,7 @@ func_normal:
 	| FUNC_ARTANH;
 
 func_custom:
-	{ self._input.LT(1).text[1:] in custom.get("functions", {}).keys() }? SYMBOL;
+	{ self._input.LT(1).text[1:] in self.CUSTOM_MATH.get("functions", {}).keys() }? SYMBOL;
 
 separator: (BAR | COMMA | SEMICOLON);
 

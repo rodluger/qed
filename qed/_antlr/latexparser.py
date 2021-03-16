@@ -12,8 +12,6 @@
 # Generated with antlr4
 #    antlr4 is licensed under the BSD-3-Clause License
 #    https://github.com/antlr/antlr4/blob/master/LICENSE.txt
-
-from qed.custom import custom
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
@@ -2279,13 +2277,13 @@ class LaTeXParser(Parser):
             self.state = 284
             if (
                 not self._input.LT(1).text[1:]
-                in custom.get("symbols", {}).keys()
+                in self.CUSTOM_MATH.get("symbols", {}).keys()
             ):
                 from antlr4.error.Errors import FailedPredicateException
 
                 raise FailedPredicateException(
                     self,
-                    ' self._input.LT(1).text[1:] in custom.get("symbols", {}).keys() ',
+                    ' self._input.LT(1).text[1:] in self.CUSTOM_MATH.get("symbols", {}).keys() ',
                 )
             self.state = 285
             self.match(LaTeXParser.SYMBOL)
@@ -2998,13 +2996,13 @@ class LaTeXParser(Parser):
             self.state = 344
             if (
                 not self._input.LT(1).text[1:]
-                in custom.get("functions", {}).keys()
+                in self.CUSTOM_MATH.get("functions", {}).keys()
             ):
                 from antlr4.error.Errors import FailedPredicateException
 
                 raise FailedPredicateException(
                     self,
-                    ' self._input.LT(1).text[1:] in custom.get("functions", {}).keys() ',
+                    ' self._input.LT(1).text[1:] in self.CUSTOM_MATH.get("functions", {}).keys() ',
                 )
             self.state = 345
             self.match(LaTeXParser.SYMBOL)
@@ -4144,7 +4142,8 @@ class LaTeXParser(Parser):
     ):
         if predIndex == 6:
             return (
-                self._input.LT(1).text[1:] in custom.get("symbols", {}).keys()
+                self._input.LT(1).text[1:]
+                in self.CUSTOM_MATH.get("symbols", {}).keys()
             )
 
     def func_custom_sempred(
@@ -4153,5 +4152,5 @@ class LaTeXParser(Parser):
         if predIndex == 7:
             return (
                 self._input.LT(1).text[1:]
-                in custom.get("functions", {}).keys()
+                in self.CUSTOM_MATH.get("functions", {}).keys()
             )

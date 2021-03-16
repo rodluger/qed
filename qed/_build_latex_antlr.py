@@ -24,10 +24,8 @@ header = """
 #    https://github.com/antlr/antlr4/blob/master/LICENSE.txt
 """
 
-parser_imports = """
-from qed.custom import custom
-"""
-
+# HACK: There might be a bug in ANTLR for Python 3, as
+# this doesn't get imported by default
 lexer_imports = """
 from antlr4 import *
 """
@@ -95,9 +93,7 @@ def build_parser(output_dir=dir_latex_antlr):
         with open(new_path, "w") as out_file:
             offset = 2
             out_file.write(header)
-            if "latexparser" in path.lower():
-                out_file.write(parser_imports)
-            elif "latexlexer" in path.lower():
+            if "latexlexer" in path.lower():
                 out_file.write(lexer_imports)
             out_file.writelines(lines[offset:])
 

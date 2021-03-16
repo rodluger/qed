@@ -1,19 +1,17 @@
 from ._antlr.latexlexer import LaTeXLexer
 from ._antlr.latexparser import LaTeXParser
 from .errors import LaTeXParsingError
+from .parse_custom import get_custom_math
 from antlr4.error import ErrorListener
 from antlr4 import InputStream, CommonTokenStream
 import sympy
 from sympy.printing.str import StrPrinter
 from sympy.physics.quantum.state import Bra, Ket
 
-# TODO: Make this user-editable
-from .custom import custom
-
 __all__ = ["parse_latex"]
 
 
-def parse_latex(latex_string):
+def parse_latex(latex_string, custom_math={}):
     r"""Converts the string ``s`` to a SymPy ``Expr``
 
     Parameters
@@ -43,6 +41,7 @@ def parse_latex(latex_string):
     lex.addErrorListener(matherror)
     tokens = CommonTokenStream(lex)
     parser = LaTeXParser(tokens)
+    parser.CUSTOM_MATH = get_custom_math(custom_math)
 
     # remove default console error listener
     parser.removeErrorListeners()
@@ -312,9 +311,9 @@ def convert_comp(comp):
 def convert_atom(atom):
     if atom.symbol_custom():
         try:
-            return custom["symbols"][atom.symbol_custom().getText()[1:]][
-                "sympy"
-            ]
+            return atom.parser.CUSTOM_MATH["symbols"][
+                atom.symbol_custom().getText()[1:]
+            ]["sympy"]
         except:
             # Symbol not defined (!?)
             # This should have been caught by the parser!
@@ -652,7 +651,7 @@ def handle_custom_functions(func):
     name = func.func_custom().start.text[1:]
 
     # Try to match against a custom special function
-    functions = custom.get("functions", {})
+    functions = func.parser.CUSTOM_MATH.get("functions", {})
     if name in functions.keys():
 
         # Get the arguments and the separators (',', ';', '|')
