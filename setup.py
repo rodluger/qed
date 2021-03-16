@@ -20,6 +20,7 @@ class antlr(Command):
         pass
 
     def run(self):
+        os.environ["QED_BUILD_LATEX_ANTLR"] = "1"
         from qed._build_latex_antlr import build_parser
 
         if not build_parser():

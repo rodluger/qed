@@ -13,7 +13,7 @@
 grammar LaTeX;
 
 options {
-	language = Python2;
+	language = Python3;
 }
 
 WS: [ \t\r\n]+ -> skip;
@@ -156,7 +156,6 @@ GTE_S: '\\geqslant';
 
 BANG: '!';
 
-QED: '\\q' [A-Z] ([a-zA-Z]+)?;
 SYMBOL: '\\' [a-zA-Z]+;
 
 math: relation unknown;
@@ -282,7 +281,8 @@ func_normal:
 	| FUNC_ARCOSH
 	| FUNC_ARTANH;
 
-func_special: QED;
+func_custom:
+	{ self._input.LT(1).text[1:] in custom.get("functions", {}).keys() }? SYMBOL;
 
 separator: (BAR | COMMA | SEMICOLON);
 
@@ -292,8 +292,8 @@ func:
 		L_PAREN func_arg R_PAREN
 		| func_arg_noparens
 	)
-	// Special functions: maximum 10 arguments
-	| func_special (
+	// Custom functions: maximum 10 arguments
+	| func_custom (
 		(
 			L_PAREN arg0 = expr (
 				sep0 = separator arg1 = expr (

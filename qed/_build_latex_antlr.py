@@ -24,6 +24,14 @@ header = """
 #    https://github.com/antlr/antlr4/blob/master/LICENSE.txt
 """
 
+parser_imports = """
+from qed.custom import custom
+"""
+
+lexer_imports = """
+from antlr4 import *
+"""
+
 
 def check_antlr_version():
     debug("Checking antlr4 version...")
@@ -87,6 +95,10 @@ def build_parser(output_dir=dir_latex_antlr):
         with open(new_path, "w") as out_file:
             offset = 2
             out_file.write(header)
+            if "latexparser" in path.lower():
+                out_file.write(parser_imports)
+            elif "latexlexer" in path.lower():
+                out_file.write(lexer_imports)
             out_file.writelines(lines[offset:])
 
         debug("\t{}".format(new_path))

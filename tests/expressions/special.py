@@ -1,3 +1,3 @@
 from .sympy_imports import *
 
-special = [(r"\qEllipe\left(k^2\right)", elliptic_e(k ** 2))]
+special = [(r"\ellipe\left(k^2\right)", elliptic_e(k ** 2))]

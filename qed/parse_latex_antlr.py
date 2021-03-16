@@ -683,9 +683,12 @@ def handle_custom_functions(func):
 
     else:
 
-        # Function not defined
+        # Function not defined (!?)
+        # This should have been caught by the parser!
         raise LaTeXParsingError(
-            "Function not defined: `{}`".format(func.getText())
+            "Unexpected branch! Function not defined: `{}`".format(
+                func.getText()
+            )
         )
 
 

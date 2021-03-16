@@ -2,7 +2,7 @@ import sympy
 
 custom = {
     "functions": {
-        "qEllipe": [
+        "ellipe": [
             {
                 "description": "Complete elliptic integral of the second kind (trigonometric form)",
                 "arguments": ["k^2"],
@@ -32,14 +32,14 @@ custom = {
                 "arguments": ["x", "k"],
                 "separators": [";"],
                 "sympy": lambda *args: sympy.elliptic_e(
-                    sympy.arcsin(args[0]), args[1] ** 2, evaluate=False
+                    sympy.asin(args[0]), args[1] ** 2, evaluate=False
                 ),
             },
         ]
     },
     "symbols": {
-        "qPi": {"description": "Pi", "sympy": sympy.pi},
-        "qImag": {"description": "Imaginary unit", "sympy": sympy.I},
-        "qEuler": {"description": "Euler's number (e)", "sympy": sympy.E},
+        "pi": {"description": "Pi", "sympy": sympy.pi},
+        "imag": {"description": "Imaginary unit", "sympy": sympy.I},
+        "euler": {"description": "Euler's number (e)", "sympy": sympy.E},
     },
 }
