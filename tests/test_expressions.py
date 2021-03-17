@@ -1,15 +1,10 @@
-from expressions import basic, special, invalid
+from expressions import basic, invalid
 from qed import parse_latex, LaTeXParsingError
 import pytest
 
 
 @pytest.mark.parametrize("latex_string,sympy_expr", basic)
 def test_basic(latex_string, sympy_expr):
-    assert parse_latex(latex_string) == sympy_expr
-
-
-@pytest.mark.parametrize("latex_string,sympy_expr", special)
-def test_special(latex_string, sympy_expr):
     assert parse_latex(latex_string) == sympy_expr
 
 

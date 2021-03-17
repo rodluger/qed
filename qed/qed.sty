@@ -11,48 +11,202 @@
   \defaultfontfeatures{Extension = .otf}
 \fi
 \RequirePackage{fontawesome} % custom symbols
+\RequirePackage{keyval} % keyword arguments to macros
+
+% Options
+\DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
+\ProcessOptions\relax
+
+% Constants
+\def\QEDFILEPATH{.qed}
+\def\QEDFUNCTIONFILE{\QEDFILEPATH/functions.qed}
+\def\QEDSYMBOLFILE{\QEDFILEPATH/symbols.qed}
+
+% QED output files
+\newwrite\qedFunctionFile
+\immediate\openout\qedFunctionFile=\QEDFUNCTIONFILE%
+\newwrite\qedSymbolFile
+\immediate\openout\qedSymbolFile=\QEDSYMBOLFILE%
+\AtEndDocument{%
+  \closeout\qedFunctionFile%
+  \closeout\qedSymbolFile
+}%
 
 % Define equation tags for passing / failing expressions
-\definecolor{testpasscolor}{rgb}{0.13333333,0.5254902,0.22745098}
-\definecolor{testfailcolor}{rgb}{0.79607843,0.14117647,0.19215686}
-\definecolor{testunknowncolor}{rgb}{1.0,0.88,0.30}
-\newcommand{\codeicon}{{\color{linkcolor}\faCloudDownload}}
-\newcommand{\testpassicon}{{\color{testpasscolor}\faCheck}}
-\newcommand{\testfailicon}{{\color{testfailcolor}\faTimes}}
-\newcommand{\testunknownicon}{{\color{testunknowncolor}\faQuestion}}
-\newcommand{\testerroricon}{{\color{testfailcolor}\faExclamation}}
+\definecolor{qedTestPassColor}{rgb}{0.13333333,0.5254902,0.22745098}
+\definecolor{qedTestFailColor}{rgb}{0.79607843,0.14117647,0.19215686}
+\definecolor{qedTestErrorColor}{rgb}{0.79607843,0.14117647,0.19215686}
+\definecolor{qedTestUnknownColor}{rgb}{1.0,0.88,0.30}
+\newcommand{\qedTestPassIcon}{{\color{qedTestPassColor}\faCheck}}
+\newcommand{\qedTestFailIcon}{{\color{qedTestFailColor}\faTimes}}
+\newcommand{\qedTestUnknownIcon}{{\color{qedTestUnknownColor}\faQuestion}}
+\newcommand{\qedTestErrorIcon}{{\color{qedTestErrorColor}\faExclamation}}
 
 % Custom equation tags
-\newtagform{eqtag}[]{(}{)}
+\newtagform{qedEquationTag}[]{(}{)}
 
 % QED equation counter
-\newcounter{qed}
+\newcounter{qedCounter}
 
 % Define a new `align' environment with custom
 % equation tags and `qed' functionality
 \newenvironment{qed}{%
-    \IfFileExists{.qed_\theqed.icon}{%
+    \IfFileExists{\QEDFILEPATH/\theqedCounter.icon}{%
         % Hack the equation tag appearance
-        \renewtagform{eqtag}[]{\input{.qed_\theqed.icon}\,(}{)}%
-        \usetagform{eqtag}%
+        \renewtagform{qedEquationTag}[]{\input{\QEDFILEPATH/\theqedCounter.icon}\,(}{)}%
+        \usetagform{qedEquationTag}%
     }{%
         % Hack the equation tag appearance
-        \renewtagform{eqtag}[]{(}{)}%
-        \usetagform{eqtag}%
+        \renewtagform{qedEquationTag}[]{(}{)}%
+        \usetagform{qedEquationTag}%
     }
-    \VerbatimOut{.qed_\theqed.tex}%
+    \VerbatimOut{\QEDFILEPATH/\theqedCounter.tex}%
 }{
     \endVerbatimOut%
     % Actually display the equation
     \begin{align}%
-        \input{.qed_\theqed.tex}%
+        \input{\QEDFILEPATH/\theqedCounter.tex}%
     \end{align}%
     % Reset the equation tag
-    \renewtagform{eqtag}[]{(}{)}%
-    \usetagform{eqtag}%
+    \renewtagform{qedEquationTag}[]{(}{)}%
+    \usetagform{qedEquationTag}%
     % Increment the `qed' counter
-    \refstepcounter{qed}
+    \refstepcounter{qedCounter}
   }
+
+% Keyword arguments to `\qedfunction'
+\newcommand\qedDefaultFunctionDescription{User-defined function}
+\newcommand\qedDefaultFunctionArguments{x}
+\newcommand\qedDefaultFunctionSympy{{lambda *args: 0.0}}
+\newcommand\qedFunctionDescription\qedDefaultFunctionDescription
+\newcommand\qedFunctionArguments\qedDefaultFunctionArguments
+\newcommand\qedFunctionSympy\qedDefaultFunctionSympy
+\define@key{qedFunctionKeys}{name}{\newcommand\qedFunctionName{#1}}
+\define@key{qedFunctionKeys}{latex}{\newcommand\qedFunctionLatex{#1}}
+\define@key{qedFunctionKeys}{desc}{\renewcommand\qedFunctionDescription{#1}}
+\define@key{qedFunctionKeys}{args}{\renewcommand\qedFunctionArguments{#1}}
+\define@key{qedFunctionKeys}{sympy}{\renewcommand\qedFunctionSympy{#1}}
+
+% Command to define a new QED function
+\newcommand\qedfunction[1]{%
+  % Set provided key values
+  \setkeys{qedFunctionKeys}{#1}%
+  % Ensure `name' and `latex' are not empty
+  \ifdefined\qedFunctionName%
+  \else%
+    \PackageError{qed}{Missing required keyword `name' in function definition}{}%
+  \fi%
+  \ifdefined\qedFunctionLatex%
+    % Define the LaTeX function
+    \edef\qedFunctionLatexExpanded{\qedFunctionLatex}%
+    \expandafter\def\csname\qedFunctionName\endcsname{%
+      \ensuremath{\qedFunctionLatexExpanded}%
+    }%
+  \fi%
+  % Output to file
+  \immediate\write\qedFunctionFile{{\qedFunctionName}{\qedFunctionDescription}{\qedFunctionArguments}{\qedFunctionLatex}{\qedFunctionSympy}}%
+  % Reset to defaults
+  \let\qedFunctionName\undefined%
+  \let\qedFunctionLatex\undefined%
+  \renewcommand\qedFunctionDescription\qedDefaultFunctionDescription%
+  \renewcommand\qedFunctionArguments\qedDefaultFunctionArguments%
+  \renewcommand\qedFunctionSympy\qedDefaultFunctionSympy%
+}
+
+% Keyword arguments to `\qedsymbol'
+\newcommand\qedDefaultSymbolDescription{User-defined symbol}
+\newcommand\qedDefaultSymbolSympy{{sympy.Integer(0)}}
+\newcommand\qedSymbolDescription\qedDefaultSymbolDescription
+\newcommand\qedSymbolSympy\qedDefaultSymbolSympy
+\define@key{qedSymbolKeys}{name}{\newcommand\qedSymbolName{#1}}
+\define@key{qedSymbolKeys}{latex}{\newcommand\qedSymbolLatex{#1}}
+\define@key{qedSymbolKeys}{desc}{\renewcommand\qedSymbolDescription{#1}}
+\define@key{qedSymbolKeys}{sympy}{\renewcommand\qedSymbolSympy{#1}}
+
+% Command to define a new QED symbol
+\newcommand\qedsymbol[1]{%
+  % Set provided key values
+  \setkeys{qedSymbolKeys}{#1}%
+  % Ensure `name' and `latex' are not empty
+  \ifdefined\qedSymbolName%
+  \else%
+    \PackageError{qed}{Missing required keyword `name' in symbol definition}{}%
+  \fi%
+  \ifdefined\qedSymbolLatex%
+    % Define the LaTeX symbol
+    \edef\qedSymbolLatexExpanded{\qedSymbolLatex}%
+    \expandafter\def\csname\qedSymbolName\endcsname{%
+      \ensuremath{\qedSymbolLatexExpanded}%
+    }%
+  \else
+    \def\qedSymbolLatex{}
+  \fi%
+  % Output to file
+  \immediate\write\qedSymbolFile{{\qedSymbolName}{\qedSymbolDescription}{\qedSymbolLatex}{\qedSymbolSympy}}%
+  % Reset to defaults
+  \let\qedSymbolName\undefined%
+  \let\qedSymbolLatex\undefined%
+  \renewcommand\qedSymbolDescription\qedDefaultSymbolDescription%
+  \renewcommand\qedSymbolSympy\qedDefaultSymbolSympy%
+}
 
 % Custom math symbols
 \newcommand{\dd}{\mathrm{d}}
+
+% Standard symbols
+\qedsymbol{
+      name={pi},
+      desc={Pi},
+      sympy={sympy.pi}
+}
+
+\qedsymbol{
+      name={euler},
+      latex={e},
+      desc={Euler's number},
+      sympy={sympy.E}
+}
+
+\qedsymbol{
+      name={imag},
+      latex={i},
+      desc={Imaginary unit},
+      sympy={sympy.I}
+}
+
+% Elliptic integrals
+\ifdefined\qedOptionElliptic%
+
+  \qedfunction{
+      name={ellipe},
+      latex={E},
+      desc={Complete elliptic integral of the second kind (trigonometric form)},
+      args={k^2},
+      sympy={lambda *args: sympy.elliptic_e(args[0], evaluate=False)}
+  }
+
+  \qedfunction{
+      name={ellipe},
+      latex={E},
+      desc={Incomplete elliptic integral of the second kind (trigonometric form)},
+      args={phi | k^2},
+      sympy={lambda *args: sympy.elliptic_e(args[0], args[1], evaluate=False)}
+  }
+
+  \qedfunction{
+      name={ellipe},
+      latex={E},
+      desc={Incomplete elliptic integral of the second kind (trigonometric form)},
+      args={phi , k},
+      sympy={lambda *args: sympy.elliptic_e(args[0], args[1] ** 2, evaluate=False)}
+  }
+
+  \qedfunction{
+      name={ellipe},
+      latex={E},
+      desc={Incomplete elliptic integral of the second kind (Legendre normal form)},
+      args={x ; k},
+      sympy={lambda *args: sympy.elliptic_e(sympy.asin(args[0]), args[1] ** 2, evaluate=False)}
+  }
+
+\fi%

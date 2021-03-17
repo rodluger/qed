@@ -1,7 +1,6 @@
 from ._antlr.latexlexer import LaTeXLexer
 from ._antlr.latexparser import LaTeXParser
 from .errors import LaTeXParsingError
-from .parse_custom import get_custom_math
 from antlr4.error import ErrorListener
 from antlr4 import InputStream, CommonTokenStream
 import sympy
@@ -41,7 +40,7 @@ def parse_latex(latex_string, custom_math={}):
     lex.addErrorListener(matherror)
     tokens = CommonTokenStream(lex)
     parser = LaTeXParser(tokens)
-    parser.CUSTOM_MATH = get_custom_math(custom_math)
+    parser.CUSTOM_MATH = custom_math
 
     # remove default console error listener
     parser.removeErrorListeners()

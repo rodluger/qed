@@ -69,7 +69,7 @@ basic = [
     (r"||x||", Abs(Abs(x))),
     (r"|x||y|", Abs(x) * Abs(y)),
     (r"||x||y||", Abs(Abs(x) * Abs(y))),
-    (r"\pi^{|xy|}", pi ** Abs(x * y)),
+    (r"z^{|xy|}", z ** Abs(x * y)),
     (r"\int x dx", Integral(x, x)),
     (r"\int x d\theta", Integral(x, theta)),
     (r"\int (x^2 - y)dx", Integral(x ** 2 - y, x)),
@@ -178,6 +178,4 @@ basic = [
     (r"\log_2 x", log(x, 2)),
     (r"\log_a x", log(x, a)),
     (r"\big(x + 1\big)^2", Add(x, 1) ** 2),
-    (r"\exp{\imag\pi}", exp(Mul(I, pi))),
-    (r"\euler^{\imag\pi}", Pow(E, Mul(I, pi))),
 ]

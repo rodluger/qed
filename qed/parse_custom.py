@@ -1,151 +1,122 @@
-from .custom import CUSTOM_MATH
+from .constants import QEDFUNCTIONFILE, QEDSYMBOLFILE, QEDSEPARATORS
+import re
+import os
 import sympy
 
-
-__all__ = ["get_custom_math"]
-
-
-FUNCTION_TEMPLATE = {
-    "description": "User-defined function",
-    "arguments": [],
-    "separators": [],
-    "latex": None,
-    "sympy": lambda *args: sympy.Integer(0),
-}
-
-SEPARATORS = [",", ";", "|"]
-
-SYMBOL_TEMPLATE = {
-    "description": "User-defined symbol",
-    "latex": None,
-    "sympy": lambda *args: sympy.Integer(0),
-}
+__all__ = ["parse_custom_math"]
 
 
-def process_custom(custom):
-    """
-    Check the syntax of custom definitions and
-    rectify entries if possible.
+def parse_custom_functions(path="."):
 
-    """
-    # Make a copy
-    new_custom = custom.copy()
-    new_custom["functions"] = new_custom.get("functions", {})
-    new_custom["symbols"] = new_custom.get("symbols", {})
+    func_dict = {}
 
-    # Process function definitions
-    for key in custom.get("functions", {}).keys():
+    # If no funcs were defined, return empty
+    if not os.path.exists(os.path.join(path, QEDFUNCTIONFILE)):
+        return func_dict
 
-        # Ensure function definitions are lists
-        if not isinstance(new_custom["functions"][key], list):
-            new_custom["functions"][key] = [new_custom["functions"][key]]
+    # Open the auto-generated functions file
+    with open(os.path.join(path, QEDFUNCTIONFILE), "r") as f:
+        functions = f.readlines()
 
-        # Process each definition
-        entries = [
-            FUNCTION_TEMPLATE.copy() for entry in new_custom["functions"][key]
-        ]
-        for i, entry in enumerate(entries):
+    # Build the custom function dictionary
+    for function in functions:
 
-            # Ensure it's a dict
-            assert isinstance(
-                entry, dict
-            ), "Function definition `{}` must be a dictionary.".format(key)
+        # Parse the properties
+        match = re.match("\{(.*?)\}" * 5, function)
+        if match:
+            name, desc, args, latex, sympy_code = match.groups()
+        else:
+            raise ValueError("Cannot parse function properties.")
 
-            # Update with defaults
-            entry.update(new_custom["functions"][key][i])
-            new_custom["functions"][key][i] = entry
+        # Parse the function arguments
+        arguments = str(args)
+        for sep in QEDSEPARATORS:
+            arguments = arguments.replace(sep, ",")
+        arguments = arguments.split(",")
+        arguments = [arg.strip() for arg in arguments]
 
-            # Basic checks
-            args = new_custom["functions"][key][i]["arguments"]
-            seps = new_custom["functions"][key][i]["separators"]
-            latex_ = new_custom["functions"][key][i]["latex"]
-            sympy_ = new_custom["functions"][key][i]["sympy"]
-            assert isinstance(
-                args, list
-            ), "Property `arguments` of function `{}` must be a list.".format(
-                key
-            )
-            assert (
-                len(args) > 0
-            ), "Function `{}` must have at least one argument.".format(key)
-            assert isinstance(
-                seps, list
-            ), "Property `separators` of function `{}` must be a list."
-            assert (
-                len(args) == len(seps) + 1
-            ), "Function `{}` has the wrong number of argument separators.".format(
-                key
-            )
-            for arg in args:
-                assert isinstance(
-                    arg, str
-                ), "Arguments to function `{}` must be strings.".format(key)
-            for sep in seps:
-                assert (
-                    sep in SEPARATORS
-                ), "Separators for function `{}` must be one of {}.".format(
-                    key, SEPARATORS
+        # Parse the argument separators
+        if len(arguments) > 1:
+            pattern = r"\s*([{}])\s*".format(
+                re.escape("".join(QEDSEPARATORS))
+            ).join([re.escape(arg) for arg in arguments])
+            match = re.match(pattern, args)
+            if match:
+                separators = match.groups()
+            else:
+                raise ValueError(
+                    "Cannot parse the arguments of function `{}`.".format(name)
                 )
-            assert latex_ is None or isinstance(
-                latex_, str
-            ), "Property `latex` of function `{}` must be a string.".format(
-                key
-            )
-            assert callable(
-                sympy_
-            ), "Property `sympy` of function `{}` must be a callable.".format(
-                key
-            )
+        else:
+            separators = []
 
-    # Process symbol definitions
-    for key in custom.get("symbols", {}).keys():
-
-        # Ensure it's a dict
-        assert isinstance(
-            entry, dict
-        ), "Symbol definition `{}` must be a dictionary.".format(key)
-
-        # Update with defaults
-        entry = SYMBOL_TEMPLATE.copy()
-        entry.update(new_custom["symbols"][key])
-        new_custom["symbols"][key] = entry
+        # Parse the sympy code
+        sympy_code = eval(sympy_code)
 
         # Basic checks
-        latex_ = new_custom["symbols"][key]["latex"]
-        sympy_ = new_custom["symbols"][key]["sympy"]
-        assert latex_ is None or isinstance(
-            latex_, str
-        ), "Property `latex` of symbol `{}` must be a string.".format(key)
-        assert isinstance(
-            sympy_, sympy.Expr
-        ), "Property `sympy` of symbol `{}` must be a SymPy expression.".format(
-            key
-        )
+        assert (
+            len(arguments) > 0
+        ), "Function `{}` must have at least one argument.".format(name)
+        assert callable(
+            sympy_code
+        ), "Property `sympy` of function `{}` must be a callable.".format(name)
 
-    return new_custom
-
-
-def get_custom_math(user_custom_math={}):
-    """
-    Merge a dictionary of user-defined custom math into the default dictionary.
-    Functions definitions are combined, while symbols in the user-defined
-    dictionary take precedence.
-
-    """
-    # Syntax checks & make copies
-    custom1 = process_custom(CUSTOM_MATH)
-    custom2 = process_custom(user_custom_math)
-    new_custom = custom1.copy()
-
-    # Process function definitions
-    for key, val in custom2["functions"].items():
-        if key in custom1["functions"].keys():
-            new_custom["functions"][key] += val
+        # Populate the dictionary
+        props = {
+            "description": desc,
+            "arguments": arguments,
+            "separators": separators,
+            "latex": latex,
+            "sympy": sympy_code,
+        }
+        if name in func_dict.keys():
+            func_dict[name] += [props]
         else:
-            new_custom["functions"][key] = val
+            func_dict[name] = [props]
 
-    # Process symbol definitions
-    for key, val in custom2["symbols"].items():
-        new_custom["symbols"][key] = val
+    return func_dict
 
-    return new_custom
+
+def parse_custom_symbols(path="."):
+
+    sym_dict = {}
+
+    # If no symbols were defined, return empty
+    if not os.path.exists(os.path.join(path, QEDSYMBOLFILE)):
+        return sym_dict
+
+    # Open the auto-generated symbols file
+    with open(os.path.join(path, QEDSYMBOLFILE), "r") as f:
+        symbols = f.readlines()
+
+    # Build the custom symbol dictionary
+    for symbol in symbols:
+
+        # Parse the properties
+        match = re.match("\{(.*?)\}" * 4, symbol)
+        if match:
+            name, desc, latex, sympy_code = match.groups()
+        else:
+            raise ValueError("Cannot parse symbol properties.")
+
+        # Parse the sympy code
+        sympy_code = eval(sympy_code)
+
+        # Populate the dictionary
+        props = {"description": desc, "latex": latex, "sympy": sympy_code}
+        if name in sym_dict.keys():
+            raise ValueError(
+                "Multiple definitions for symbol `{}`.".format(name)
+            )
+        else:
+            sym_dict[name] = props
+
+    return sym_dict
+
+
+def parse_custom_math(path="."):
+    custom_math = {
+        "functions": parse_custom_functions(path),
+        "symbols": parse_custom_symbols(path),
+    }
+    return custom_math
