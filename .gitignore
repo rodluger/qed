@@ -16,6 +16,19 @@ docs/_build/
 # IPython
 .ipynb_checkpoints/
 
+# TeX
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.log
+*.dvi
+*.ps
+*.eps
+*.out
+*.ent
+*Notes.bib
+
 # Misc
 .pre-commit-config.yaml
 .antlr/
@@ -25,3 +38,6 @@ __pycache__/
 tests/latex/*
 !tests/latex/ms.tex
 !tests/latex/Makefile
+examples/*
+!examples/*.tex
+!examples/Makefile

@@ -13,8 +13,10 @@ def parse_equation(equation, custom_math):
     # TODO: We can do much better than this!
     try:
         value = sympy.simplify(
-            parse_latex(equation, custom_math=custom_math)
-        ).doit()
+            sympy.simplify(
+                parse_latex(equation, custom_math=custom_math)
+            ).doit()
+        )
     except LaTeXParsingError as e:
         # TODO: Log the error
         warnings.warn(str(e))
@@ -24,6 +26,7 @@ def parse_equation(equation, custom_math):
     elif (type(value) is BooleanFalse) or (value is False):
         return False
     else:
+        # TODO: Log this
         return None
 
 

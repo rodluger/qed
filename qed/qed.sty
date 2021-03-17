@@ -82,7 +82,7 @@
 \newcommand\qedFunctionArguments\qedDefaultFunctionArguments
 \newcommand\qedFunctionSympy\qedDefaultFunctionSympy
 \define@key{qedFunctionKeys}{name}{\newcommand\qedFunctionName{#1}}
-\define@key{qedFunctionKeys}{latex}{\newcommand\qedFunctionLatex{#1}}
+\define@key{qedFunctionKeys}{latex}{\newcommand\qedFunctionLatex{\unexpanded\expandafter{\ensuremath{#1}}}}
 \define@key{qedFunctionKeys}{desc}{\renewcommand\qedFunctionDescription{#1}}
 \define@key{qedFunctionKeys}{args}{\renewcommand\qedFunctionArguments{#1}}
 \define@key{qedFunctionKeys}{sympy}{\renewcommand\qedFunctionSympy{#1}}
@@ -98,10 +98,7 @@
   \fi%
   \ifdefined\qedFunctionLatex%
     % Define the LaTeX function
-    \edef\qedFunctionLatexExpanded{\qedFunctionLatex}%
-    \expandafter\def\csname\qedFunctionName\endcsname{%
-      \ensuremath{\qedFunctionLatexExpanded}%
-    }%
+    \expandafter\xdef\csname\qedFunctionName\endcsname{\qedFunctionLatex}
   \fi%
   % Output to file
   \immediate\write\qedFunctionFile{{\qedFunctionName}{\qedFunctionDescription}{\qedFunctionArguments}{\qedFunctionLatex}{\qedFunctionSympy}}%
@@ -119,7 +116,7 @@
 \newcommand\qedSymbolDescription\qedDefaultSymbolDescription
 \newcommand\qedSymbolSympy\qedDefaultSymbolSympy
 \define@key{qedSymbolKeys}{name}{\newcommand\qedSymbolName{#1}}
-\define@key{qedSymbolKeys}{latex}{\newcommand\qedSymbolLatex{#1}}
+\define@key{qedSymbolKeys}{latex}{\newcommand\qedSymbolLatex{\unexpanded\expandafter{\ensuremath{#1}}}}
 \define@key{qedSymbolKeys}{desc}{\renewcommand\qedSymbolDescription{#1}}
 \define@key{qedSymbolKeys}{sympy}{\renewcommand\qedSymbolSympy{#1}}
 
@@ -134,12 +131,9 @@
   \fi%
   \ifdefined\qedSymbolLatex%
     % Define the LaTeX symbol
-    \edef\qedSymbolLatexExpanded{\qedSymbolLatex}%
-    \expandafter\def\csname\qedSymbolName\endcsname{%
-      \ensuremath{\qedSymbolLatexExpanded}%
-    }%
+    \expandafter\xdef\csname\qedSymbolName\endcsname{\qedSymbolLatex}
   \else
-    \def\qedSymbolLatex{}
+    \gdef\qedSymbolLatex{}
   \fi%
   % Output to file
   \immediate\write\qedSymbolFile{{\qedSymbolName}{\qedSymbolDescription}{\qedSymbolLatex}{\qedSymbolSympy}}%
@@ -174,13 +168,34 @@
       sympy={sympy.I}
 }
 
+\qedsymbol{
+      name={infty},
+      desc={Infinity},
+      sympy={sympy.oo}
+}
+
+\qedsymbol{
+      name={cinfty},
+      latex={\tilde{\infty}},
+      desc={Complex infinity},
+      sympy={sympy.zoo}
+}
+
 % Elliptic integrals
 \ifdefined\qedOptionElliptic%
 
   \qedfunction{
+    name={ellipk},
+    latex={K},
+    desc={Complete elliptic integral of the first kind},
+    args={k^2},
+    sympy={lambda *args: sympy.elliptic_k(args[0], evaluate=False)}
+  }
+
+  \qedfunction{
       name={ellipe},
       latex={E},
-      desc={Complete elliptic integral of the second kind (trigonometric form)},
+      desc={Complete elliptic integral of the second kind},
       args={k^2},
       sympy={lambda *args: sympy.elliptic_e(args[0], evaluate=False)}
   }

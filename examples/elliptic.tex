@@ -1,0 +1,46 @@
+\documentclass{article}
+\usepackage[elliptic]{qed}
+
+\begin{document}
+
+\section*{Elliptic integrals}
+
+The complete elliptic integrals of the first and second kinds are defined as
+%
+\begin{qed}
+    \ellipk(k^2) = \int_0^{\frac{\pi}{2}} \frac{1}{\sqrt{1 - k^2 \sin^2\theta}} \, \dd \theta
+\end{qed}
+%
+and
+%
+\begin{qed}
+    \ellipe(k^2) = \int_0^{\frac{\pi}{2}} \sqrt{1 - k^2 \sin^2\theta} \, \dd \theta
+\end{qed}
+%
+respectively. They have the following properties:
+%
+\begin{qed}
+    \ellipk(0) = \frac{\pi}{2}
+\end{qed}
+%
+\begin{qed}
+    \ellipe(0) = \frac{\pi}{2}
+\end{qed}
+%
+\begin{qed}
+    \ellipk(1) = \cinfty
+\end{qed}
+%
+\begin{qed}
+    \ellipe(1) = 1
+\end{qed}
+%
+\begin{qed}
+    \frac{d}{d k}\ellipk(k^2) = -\frac{\ellipk(k^2) + \frac{\ellipe(k^2)}{k^2 - 1}}{k}
+\end{qed}
+%
+\begin{qed}
+    \frac{d}{d k}\ellipe(k^2) = \frac{\ellipe(k^2) - \ellipk(k^2)}{k}
+\end{qed}
+
+\end{document}
