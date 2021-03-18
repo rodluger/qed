@@ -1,6 +1,9 @@
-from .qed_version import __version__
 import os
 
+try:
+    from .qed_version import __version__
+except ModuleNotFoundError:
+    __version__ = "unknown"
 
 if not os.getenv("QED_BUILD_LATEX_ANTLR", False):
 
