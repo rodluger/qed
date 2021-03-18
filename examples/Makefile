@@ -3,7 +3,7 @@
 TEX_FILES   = elliptic
 PDFLATEX    = pdflatex -interaction=nonstopmode -halt-on-error
 PDF_FILES   = $(foreach d, ${TEX_FILES}, ${d}.pdf)
-TMP_SUFFS   = .pdf .aux .bbl .blg .log .dvi .ps .eps .out .ent Notes.bib
+TMP_SUFFS   = .aux .bbl .blg .log .dvi .ps .eps .out .ent Notes.bib
 RM_TMP      = \
 $(foreach d, ${TEX_FILES}, rm -rf $(foreach suff, ${TMP_SUFFS}, ${d}${suff})) msNotes.bib
 CHECK_RERUN = grep Rerun ms.log
@@ -29,5 +29,6 @@ default: ${PDF_FILES}
 	@qed-clean
 
 clean:
+	@rm -f ${PDF_FILES}
 	@${RM_TMP}
 	@qed-clean

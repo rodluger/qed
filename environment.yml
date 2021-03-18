@@ -5,7 +5,9 @@ channels:
 dependencies:
   - pip>=20.3.3
   - tectonic>=0.1.11
+  - poppler>=0.81.0
   - pip:
     - pytest>=6.2.1
     - pytest-dependency>=0.5.1
     - pytest-env>=0.6.2
+    - pdf2image>=1.14.0

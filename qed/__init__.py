@@ -1,4 +1,6 @@
+from .qed_version import __version__
 import os
+
 
 if not os.getenv("QED_BUILD_LATEX_ANTLR", False):
 
