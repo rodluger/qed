@@ -1,7 +1,7 @@
 qed
 ===
 
-[![very-preliminary](https://img.shields.io/badge/very-preliminary-yellow)]() [![super-hacky](https://img.shields.io/badge/super-hacky-orange)]() [![you've-been-warned](https://img.shields.io/badge/you've-been%20warned-red)]() [![tests](https://github.com/rodluger/qed/actions/workflows/tests.yml/badge.svg)](https://github.com/rodluger/qed/actions/workflows/tests.yml)
+[![very-preliminary](https://img.shields.io/badge/very-preliminary-yellow)]() [![super-hacky](https://img.shields.io/badge/super-hacky-orange)]() [![you've-been-warned](https://img.shields.io/badge/you've-been%20warned-red)]() [![tests](https://github.com/rodluger/qed/actions/workflows/tests.yml/badge.svg)](https://github.com/rodluger/qed/actions/workflows/tests.yml) [![docs](https://qed-latex.readthedocs.io/en/latest/?badge=latest)](https://readthedocs.org/projects/qed-latex/badge/?version=latest)
 
 ## Setup
 

@@ -48,6 +48,34 @@ Click :download:`here <{texfile}>` to download the TEX file.
 .. literalinclude:: {texfile}
    :language: latex
    :lines: 2-
+
+Building the PDF
+----------------
+
+To build the PDF, run
+
+.. code-block:: bash
+
+    qed-setup
+
+in the same directory as the :download:`tex file <{texfile}>`, then compile it by running
+
+.. code-block:: bash
+
+    pdflatex {texfile}
+    qed
+    pdflatex {texfile}
+
+if you have ``pdfLaTeX`` installed, or
+
+.. code-block:: bash
+
+    tectonic {texfile} --keep-intermediates
+    qed
+    tectonic {texfile}
+
+if you're using `tectonic <https://tectonic-typesetting.github.io/en-US/>`_.
+
 """
 
 

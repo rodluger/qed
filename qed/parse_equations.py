@@ -7,6 +7,7 @@ import glob
 import os
 from sympy.logic.boolalg import BooleanFalse, BooleanTrue
 import warnings
+from tqdm.auto import tqdm
 
 
 def parse_equation(equation, custom_math):
@@ -46,7 +47,8 @@ def bool_to_icon(expr):
 def parse_equations(path="."):
     files = glob.glob(os.path.join(path, QEDFILEPATH, "*.tex"))
     custom_math = parse_custom_math(path=path)
-    for file in files:
+    print("[QED] Parsing equations...")
+    for file in tqdm(files):
         with open(file, "r") as f:
             equation = f.read()
         with open(file.replace(".tex", ".icon"), "w") as f:
