@@ -3,7 +3,15 @@ import os
 import subprocess
 import shutil
 import glob
-from pdf2image import convert_from_path
+
+try:
+    from pdf2image import convert_from_path
+except ModuleNotFoundError as e:
+
+    def delayed_import_error(*args):
+        raise e
+
+    convert_from_path = delayed_import_error
 
 INDEX_TEMPLATE = """
 Examples

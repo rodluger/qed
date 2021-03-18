@@ -1,0 +1,13 @@
+version: 2
+
+submodules:
+  include: all
+
+python:
+  version: 3.9
+  install:
+    - method: pip
+      path: .
+
+sphinx:
+  builder: dirhtml
