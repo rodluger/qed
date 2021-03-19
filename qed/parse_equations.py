@@ -41,74 +41,101 @@ def parse_equation(equation, custom_math, options):
 
     # TODO: Log the outputs and errors
 
-    # Parse the equation into a SymPy expression
-    expr = parse_latex(equation, custom_math=custom_math)
+    try:
 
-    # Attempt to evaluate analytically
-    if options["numerical"] != "true":
-        try:
-            value = sympy.simplify(sympy.simplify(expr).doit())
-        except LaTeXParsingError as e:
-            warnings.warn(str(e))
-            return ParsingError
+        # Parse the equation into a SymPy expression
+        expr = parse_latex(equation, custom_math=custom_math)
 
-        # If we can determine T/F, return
-        if (type(value) is BooleanTrue) or (value is True):
-            return AnalyticalTrue()
-        elif (type(value) is BooleanFalse) or (value is False):
-            return AnalyticalFalse()
-        else:
-            pass
+        # Attempt to evaluate analytically
+        if options["numerical"] != "yes":
+            try:
+                value = sympy.simplify(sympy.simplify(expr).doit())
+            except LaTeXParsingError as e:
+                warnings.warn(str(e))
+                return ParsingError()
 
-    # Attempt to evaluate numerically
-    if options["numerical"] in ["true", "fallback"]:
-
-        # Get the user options
-        variables = options["variables"]
-        atol = options["atol"]
-        rtol = options["rtol"]
-        seed = options["seed"]
-        ntests = options["ntests"]
-        low = options["low"]
-        high = options["high"]
-
-        # Determine variables automatically?
-        if len(variables) == 0:
-            rng = RandomState(seed)
-            symbols = sorted(list(expr.free_symbols))
-            variables = []
-            for k in range(ntests):
-                dict_k = {}
-                for symbol in symbols:
-                    dict_k[symbol] = rng.uniform(low=low, high=high)
-                variables.append(dict_k)
-
-        # Substitute and evaluate
-        if isinstance(expr, sympy.Equality):
-
-            # Check the expression for every value of each of the variables
-            value = True
-            for k in range(len(variables)):
-                lhs = expr.lhs.subs(variables[k], simultaneous=True)
-                rhs = expr.rhs.subs(variables[k], simultaneous=True)
-                value = value and sympy.LessThan(
-                    sympy.Abs(lhs - rhs), atol + rtol * sympy.Abs(rhs)
-                )
+            # If we can determine T/F, return
             if (type(value) is BooleanTrue) or (value is True):
-                return NumericalTrue
+                return AnalyticalTrue()
             elif (type(value) is BooleanFalse) or (value is False):
-                return NumericalFalse()
+                return AnalyticalFalse()
             else:
+                pass
+
+        # Attempt to evaluate numerically
+        if options["numerical"] in ["yes", "fallback"]:
+
+            # Get the user options
+            variables = options["variables"]
+            atol = options["atol"]
+            rtol = options["rtol"]
+            seed = options["seed"]
+            ntests = options["ntests"]
+            low = options["low"]
+            high = options["high"]
+
+            # Determine variables automatically?
+            if len(variables) == 0:
+                rng = RandomState(seed)
+                symbols = sorted(list(expr.free_symbols))
+                variables = []
+                for k in range(ntests):
+                    dict_k = {}
+                    for symbol in symbols:
+                        dict_k[symbol] = rng.uniform(low=low, high=high)
+                    variables.append(dict_k)
+
+            # Substitute and evaluate
+            if isinstance(expr, sympy.Equality):
+
+                # Check the expression for every value of each of the variables
+                value = True
+                for k in range(len(variables)):
+                    lhs = expr.lhs.subs(variables[k], simultaneous=True)
+                    rhs = expr.rhs.subs(variables[k], simultaneous=True)
+
+                    # Check the real and imaginary parts separately
+                    try:
+                        value = value and sympy.LessThan(
+                            sympy.Abs(sympy.re(lhs - rhs)),
+                            atol + rtol * sympy.Abs(sympy.re(rhs)),
+                        )
+                        value = value and sympy.LessThan(
+                            sympy.Abs(sympy.im(lhs - rhs)),
+                            atol + rtol * sympy.Abs(sympy.im(rhs)),
+                        )
+                    except Exception as e:
+                        # TODO
+                        warnings.warn(str(e))
+                        value = False
+
+                if (type(value) is BooleanTrue) or (value is True):
+                    return NumericalTrue
+                elif (type(value) is BooleanFalse) or (value is False):
+                    return NumericalFalse()
+                else:
+
+                    # TODO: This branch usually occurs when the user
+                    # provided values for only *some* of the
+                    # free variables. Here we should re-run the
+                    # evaluation with random values for the remaining
+                    # variables.
+                    return Indeterminate()
+
+            else:
+
+                # TODO: Process inequalities here
                 return Indeterminate()
 
         else:
 
-            # TODO: Process inequalities here
             return Indeterminate()
 
-    else:
+    except Exception as e:
 
-        return Indeterminate()
+        #
+        warnings.warn(str(e))
+        return ParsingError()
 
 
 def to_icon(expr):
@@ -134,9 +161,19 @@ def parse_options(options):
     options["low"] = float(options["low"])
     options["high"] = float(options["high"])
 
+    #
+    assert options["numerical"] in [
+        "yes",
+        "no",
+        "fallback",
+    ], "Option `numerical` must be one of `yes`, `no`, or `fallback`."
+
     # Parse the variable values into substitution dicts
     sz = None
     for key, value in options["variables"].items():
+        if type(value) is str:
+            # Attempt to evaluate the expression
+            value = eval(value)
         value = np.atleast_1d(value)
         options["variables"][key] = value
         if sz is not None:

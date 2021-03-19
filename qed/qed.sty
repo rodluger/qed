@@ -56,8 +56,8 @@
 \newcommand\qedDefaultQedNumerical{fallback}
 \newcommand\qedDefaultQedTimeout{0}
 \newcommand\qedDefaultQedVariables{}
-\newcommand\qedDefaultQedATol{1e-15}
-\newcommand\qedDefaultQedRTol{1e-15}
+\newcommand\qedDefaultQedATol{1e-12}
+\newcommand\qedDefaultQedRTol{1e-12}
 \newcommand\qedDefaultQedSeed{0}
 \newcommand\qedDefaultQedNTests{10}
 \newcommand\qedDefaultQedLow{0.0}
@@ -98,7 +98,7 @@
 % complicates things when we call `VerbatimOut', so we need to
 % use the hacks described here: https://tex.stackexchange.com/a/9040
 \newenvironment{qed}{%
-    \@ifnextchar[\qed@\qed@noargs
+    \@ifnextchar[\qed@\qed@noargs%
 }{%
     \end{VerbatimOut}%
     %
@@ -109,17 +109,17 @@
     \renewtagform{qedEquationTag}[]{(}{)}%
     \usetagform{qedEquationTag}%
     % Increment the `qed' counter
-    \refstepcounter{qedCounter}
+    \refstepcounter{qedCounter}%
     % Reset keys to defaults
-    \renewcommand\qedQedNumerical\qedDefaultQedNumerical
-    \renewcommand\qedQedTimeout\qedDefaultQTimeout
-    \renewcommand\qedQedVariables\qedDefaultQedVariables
-    \renewcommand\qedQedATol\qedDefaultQedATol
-    \renewcommand\qedQedRTol\qedDefaultQedRTol
-    \renewcommand\qedQedSeed\qedDefaultQedSeed
-    \renewcommand\qedQedNTests\qedDefaultQedNTests
-    \renewcommand\qedQedLow\qedDefaultQedLow
-    \renewcommand\qedQedHigh\qedDefaultQedHigh
+    \renewcommand\qedQedNumerical\qedDefaultQedNumerical%
+    \renewcommand\qedQedTimeout\qedDefaultQTimeout%
+    \renewcommand\qedQedVariables\qedDefaultQedVariables%
+    \renewcommand\qedQedATol\qedDefaultQedATol%
+    \renewcommand\qedQedRTol\qedDefaultQedRTol%
+    \renewcommand\qedQedSeed\qedDefaultQedSeed%
+    \renewcommand\qedQedNTests\qedDefaultQedNTests%
+    \renewcommand\qedQedLow\qedDefaultQedLow%
+    \renewcommand\qedQedHigh\qedDefaultQedHigh%
 }
 
 % Version of the `qed' environment *with* keywords provided
@@ -129,7 +129,7 @@
     % Write the options to a JSON file
     \immediate\openout\qedQedOptionsFile=\QEDQEDOPTFILE%
     \immediate\write\qedQedOptionsFile{%
-      {
+      {%
         ^^J% (newline char)
         "numerical": "\qedQedNumerical",%
         ^^J%
@@ -149,9 +149,9 @@
         ^^J%
         "variables": {\qedQedVariables}%
         ^^J%
-      }
-    }
-    \immediate\closeout\qedQedOptionsFile
+      }%
+    }%
+    \immediate\closeout\qedQedOptionsFile%
     %
     % Check if a pass/fail icon exists for this function
     \IfFileExists{\QEDQEDICONFILE}{%
@@ -165,14 +165,14 @@
     }
     % Capture the contents of the environment and
     % send them straight to a file
-    \VerbatimEnvironment
+    \VerbatimEnvironment%
     \begin{VerbatimOut}{\QEDQEDTEXFILE}%
 }
 
 % Version of the `qed' environment *without* any keywords
 \def\qed@noargs#1{%
     \edef\temp{[]\activeeol\string#1}%
-    \expandafter\qed@\temp
+    \expandafter\qed@\temp%
 }
 
 % Keyword arguments to `\qedfunction'
