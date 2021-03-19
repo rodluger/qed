@@ -8,13 +8,15 @@
 The complete elliptic integrals of the first and second kinds are defined as
 %
 \begin{qed}
-    \ellipk(k^2) = \int_0^{\frac{\pi}{2}} \frac{1}{\sqrt{1 - k^2 \sin^2\theta}} \, \dd \theta
+    \ellipk(k^2) = \int_0^{\frac{\pi}{2}}
+    \frac{1}{\sqrt{1 - k^2 \sin^2\theta}} \, \dd \theta
 \end{qed}
 %
 and
 %
 \begin{qed}
-    \ellipe(k^2) = \int_0^{\frac{\pi}{2}} \sqrt{1 - k^2 \sin^2\theta} \, \dd \theta
+    \ellipe(k^2) = \int_0^{\frac{\pi}{2}}
+    \sqrt{1 - k^2 \sin^2\theta} \, \dd \theta
 \end{qed}
 %
 respectively. They have the following properties:
@@ -36,7 +38,8 @@ respectively. They have the following properties:
 \end{qed}
 %
 \begin{qed}
-    \frac{d}{d k}\ellipk(k^2) = -\frac{\ellipk(k^2) + \frac{\ellipe(k^2)}{k^2 - 1}}{k}
+    \frac{d}{d k}\ellipk(k^2) = -\frac{\ellipk(k^2)
+        + \frac{\ellipe(k^2)}{k^2 - 1}}{k}
 \end{qed}
 %
 \begin{qed}
@@ -46,7 +49,8 @@ respectively. They have the following properties:
 They also satisfy the Legendre relation:
 %
 \begin{qed}
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2) - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
+    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
+    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
 \end{qed}
 %
 \end{document}
