@@ -45,6 +45,7 @@ setup(
     cmdclass={"antlr": antlr},
     install_requires=[
         "setuptools_scm",
+        "numpy>=1.18.5",
         "sympy>=1.7.1",
         "antlr4-python3-runtime==4.7.2",
         "tqdm",

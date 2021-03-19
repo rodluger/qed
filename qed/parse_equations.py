@@ -69,6 +69,8 @@ def parse_equation(equation, custom_math, options):
 
         # TODO: Determine variables automatically?
         if len(variables) == 0:
+            symbols = expr.free_symbols
+
             return Indeterminate()
 
         if isinstance(expr, sympy.Equality):
