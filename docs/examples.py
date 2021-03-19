@@ -47,7 +47,6 @@ Click :download:`here <{texfile}>` to download the TEX file.
 
 .. literalinclude:: {texfile}
    :language: latex
-   :lines: 2-
 
 Building the PDF
 ----------------
@@ -110,10 +109,7 @@ def run_examples():
         pngfile = rstfile.replace(".rst", "{}.png")
 
         # Get example title
-        with open(file, "r") as f:
-            title = f.readline()
-            assert title.startswith("%"), "Example doesn't have a title!"
-            title = title[1:-1].strip()
+        title = texfile.replace(".tex", "").replace("_", " ").title()
 
         # Append to the index of examples
         index.append(texfile.replace(".tex", ""))
@@ -143,7 +139,7 @@ def run_examples():
 
     # Add index to `examples.rst`
     with open(os.path.join(HERE, "examples", "examples.rst"), "w") as f:
-        print(INDEX_TEMPLATE.format(index=r"\n   ".join(index)), file=f)
+        print(INDEX_TEMPLATE.format(index="\n   ".join(index)), file=f)
 
 
 if __name__ == "__main__":

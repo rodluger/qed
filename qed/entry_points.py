@@ -1,5 +1,5 @@
 from . import parse_equations
-from .constants import QEDFILEPATH
+from .constants import QEDDIRS, QEDFILES
 import sys
 import os
 import shutil
@@ -21,8 +21,9 @@ def qed_setup():
 
     """
     assert len(sys.argv) == 1, "Invalid option."
-    if not os.path.exists(QEDFILEPATH):
-        os.mkdir(QEDFILEPATH)
+    for QEDDIR in QEDDIRS:
+        if not os.path.exists(QEDDIR):
+            os.makedirs(QEDDIR)
     shutil.copyfile(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "qed.sty"),
         "qed.sty",
@@ -35,5 +36,7 @@ def qed_clean():
 
     """
     assert len(sys.argv) == 1, "Invalid option."
-    for file in glob.glob(os.path.join(QEDFILEPATH, "*")):
+    files = [glob.glob(file.format(qedCounter="*")) for file in QEDFILES]
+    files = [f for fs in files for f in fs]
+    for file in files:
         os.remove(file)

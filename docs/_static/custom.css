@@ -1,4 +1,5 @@
 img.pdf-preview {
-    border-width: 5px;
-    border-style: inset;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #e1e4e5;
 }

@@ -13,16 +13,19 @@
 \RequirePackage{fontawesome} % custom symbols
 \RequirePackage{keyval} % keyword arguments to macros
 
-% Options
+% Package options
 \DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
 \ProcessOptions\relax
 
-% Constants
-\def\QEDFILEPATH{.qed}
-\def\QEDFUNCTIONFILE{\QEDFILEPATH/functions.qed}
-\def\QEDSYMBOLFILE{\QEDFILEPATH/symbols.qed}
+% File paths
+\def\QEDFUNCTIONFILE{.qed/functions.qed}
+\def\QEDSYMBOLFILE{.qed/symbols.qed}
+\def\QEDQEDICONFILE{.qed/qed/\theqedCounter.icon}
+\def\QEDQEDTEXFILE{.qed/qed/\theqedCounter.tex}
+\def\QEDQEDOPTFILE{.qed/qed/\theqedCounter.json}
 
-% QED output files
+% Output streams
+\newwrite\qedQedOptionsFile
 \newwrite\qedFunctionFile
 \immediate\openout\qedFunctionFile=\QEDFUNCTIONFILE%
 \newwrite\qedSymbolFile
@@ -48,31 +51,85 @@
 % QED equation counter
 \newcounter{qedCounter}
 
-% Define a new `align' environment with custom
-% equation tags and `qed' functionality
+% Keyword arguments to the `qed' environment
+\newcommand\qedDefaultQedNumerical{fallback}
+\newcommand\qedDefaultQedTimeout{0}
+\newcommand\qedQedNumerical\qedDefaultQedNumerical
+\newcommand\qedQedTimeout\qedDefaultQedTimeout
+\define@key{qedQedKeys}{numerical}{\renewcommand\qedQedNumerical{#1}}
+\define@key{qedQedKeys}{timeout}{\renewcommand\qedQedTimeout{#1}}
+
+% Hack for the `qed` environment as per https://tex.stackexchange.com/a/9040
+% See below for details
+\begingroup
+\catcode`\^^M\active%
+\global\def\activeeol{^^M}%
+\endgroup
+
+% Define a custom `align' environment called `qed' with custom
+% equation tags and `qed' functionality. The idea here is to
+% capture the contents of the environment with `VerbatimOut',
+% then send them to a tmp file (for later `qed` parsing)
+% and display them within an actual `align' environment.
+% We allow *optional* keyword arguments, which we output to
+% a JSON file for the parsing. The fact that they're optional
+% complicates things when we call `VerbatimOut', so we need to
+% use the hacks described here: https://tex.stackexchange.com/a/9040
 \newenvironment{qed}{%
-    \IfFileExists{\QEDFILEPATH/\theqedCounter.icon}{%
-        % Hack the equation tag appearance
-        \renewtagform{qedEquationTag}[]{\input{\QEDFILEPATH/\theqedCounter.icon}\,(}{)}%
-        \usetagform{qedEquationTag}%
-    }{%
-        % Hack the equation tag appearance
-        \renewtagform{qedEquationTag}[]{(}{)}%
-        \usetagform{qedEquationTag}%
-    }
-    \VerbatimOut{\QEDFILEPATH/\theqedCounter.tex}%
-}{
-    \endVerbatimOut%
-    % Actually display the equation
+    \@ifnextchar[\qed@\qed@noargs
+}{%
+    \end{VerbatimOut}%
+    %
     \begin{align}%
-        \input{\QEDFILEPATH/\theqedCounter.tex}%
+      \input{\QEDQEDTEXFILE}%
     \end{align}%
     % Reset the equation tag
     \renewtagform{qedEquationTag}[]{(}{)}%
     \usetagform{qedEquationTag}%
     % Increment the `qed' counter
     \refstepcounter{qedCounter}
-  }
+    % Reset keys to defaults
+    \renewcommand\qedQedNumerical\qedDefaultQedNumerical
+}
+
+% Version of the `qed' environment *with* keywords provided
+\def\qed@[#1]{%
+    % Set provided key values
+    \setkeys{qedQedKeys}{#1}%
+    % Write the options to a JSON file
+    \immediate\openout\qedQedOptionsFile=\QEDQEDOPTFILE%
+    \immediate\write\qedQedOptionsFile{%
+      {
+        ^^J% (newline char)
+        "numerical": "\qedQedNumerical",%
+        ^^J%
+        "timeout": "\qedQedTimeout"%
+        ^^J%
+      }
+    }
+    \immediate\closeout\qedQedOptionsFile
+    %
+    % Check if a pass/fail icon exists for this function
+    \IfFileExists{\QEDQEDICONFILE}{%
+        % Hack the equation tag appearance to include the icon
+        \renewtagform{qedEquationTag}[]{\input{\QEDQEDICONFILE}\,(}{)}%
+        \usetagform{qedEquationTag}%
+    }{%
+        % Restore the equation tag appearance
+        \renewtagform{qedEquationTag}[]{(}{)}%
+        \usetagform{qedEquationTag}%
+    }
+    % Capture the contents of the environment and
+    % send them straight to a file
+    \VerbatimEnvironment
+    \begin{VerbatimOut}{\QEDQEDTEXFILE}%
+}
+
+% Version of the `qed' environment *without* any keywords
+\def\qed@noargs#1{%
+    \edef\temp{[]\activeeol\string#1}%
+    \expandafter\qed@\temp
+}
 
 % Keyword arguments to `\qedfunction'
 \newcommand\qedDefaultFunctionDescription{User-defined function}
@@ -102,7 +159,7 @@
   \fi%
   % Output to file
   \immediate\write\qedFunctionFile{{\qedFunctionName}{\qedFunctionDescription}{\qedFunctionArguments}{\qedFunctionLatex}{\qedFunctionSympy}}%
-  % Reset to defaults
+  % Reset keys to defaults
   \let\qedFunctionName\undefined%
   \let\qedFunctionLatex\undefined%
   \renewcommand\qedFunctionDescription\qedDefaultFunctionDescription%
@@ -137,7 +194,7 @@
   \fi%
   % Output to file
   \immediate\write\qedSymbolFile{{\qedSymbolName}{\qedSymbolDescription}{\qedSymbolLatex}{\qedSymbolSympy}}%
-  % Reset to defaults
+  % Reset keys to defaults
   \let\qedSymbolName\undefined%
   \let\qedSymbolLatex\undefined%
   \renewcommand\qedSymbolDescription\qedDefaultSymbolDescription%

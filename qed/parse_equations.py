@@ -1,4 +1,4 @@
-from .constants import QEDFILEPATH
+from .constants import QEDQEDTEXFILES
 from .parse_custom import parse_custom_math
 from .parse_latex_antlr import parse_latex
 from .errors import LaTeXParsingError
@@ -45,10 +45,12 @@ def bool_to_icon(expr):
 
 
 def parse_equations(path="."):
-    files = glob.glob(os.path.join(path, QEDFILEPATH, "*.tex"))
+    texfiles = glob.glob(
+        os.path.join(path, QEDQEDTEXFILES.format(qedCounter="*"))
+    )
     custom_math = parse_custom_math(path=path)
     print("[QED] Parsing equations...")
-    for file in tqdm(files):
+    for file in tqdm(texfiles):
         with open(file, "r") as f:
             equation = f.read()
         with open(file.replace(".tex", ".icon"), "w") as f:
