@@ -5,7 +5,27 @@
 
 \section*{Numerical fallback}
 
-\begin{qed}[numerical=fallback]
+\begin{qed}[
+        numerical=fallback
+    ]
+    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2) - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
+\end{qed}
+
+\begin{qed}[
+        numerical=fallback,
+        variables={
+                "k": 0.5
+            }
+    ]
+    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2) - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
+\end{qed}
+
+\begin{qed}[
+    numerical=fallback,
+    variables={
+    "k": [0.5, 0.75]
+    }
+    ]
     \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2) - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
 \end{qed}
 

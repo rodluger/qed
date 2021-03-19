@@ -1,6 +1,6 @@
 .PHONY : clean
 
-TEX_FILES  := $(shell find . -iname '*.tex' | xargs -L1 -I{} basename "{}" .tex)
+TEX_FILES  := $(shell find . -maxdepth 1 -iname '*.tex' | xargs -L1 -I{} basename "{}" .tex)
 PDFLATEX    = pdflatex -interaction=nonstopmode -halt-on-error
 PDF_FILES   = $(foreach d, ${TEX_FILES}, ${d}.pdf)
 TMP_SUFFS   = .aux .bbl .blg .log .dvi .ps .eps .out .ent Notes.bib

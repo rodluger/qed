@@ -36,14 +36,15 @@
 }%
 
 % Define equation tags for passing / failing expressions
-\definecolor{qedTestPassColor}{rgb}{0.13333333,0.5254902,0.22745098}
-\definecolor{qedTestFailColor}{rgb}{0.79607843,0.14117647,0.19215686}
-\definecolor{qedTestErrorColor}{rgb}{0.79607843,0.14117647,0.19215686}
-\definecolor{qedTestUnknownColor}{rgb}{1.0,0.88,0.30}
-\newcommand{\qedTestPassIcon}{{\color{qedTestPassColor}\faCheck}}
-\newcommand{\qedTestFailIcon}{{\color{qedTestFailColor}\faTimes}}
-\newcommand{\qedTestUnknownIcon}{{\color{qedTestUnknownColor}\faQuestion}}
-\newcommand{\qedTestErrorIcon}{{\color{qedTestErrorColor}\faExclamation}}
+\definecolor{qedGreen}{rgb}{0.13333333,0.5254902,0.22745098}
+\definecolor{qedRed}{rgb}{0.79607843,0.14117647,0.19215686}
+\definecolor{qedYelow}{rgb}{1.0,0.88,0.30}
+\newcommand{\qedTestAnalyticalTrueIcon}{{\color{qedGreen}\faCheck}}
+\newcommand{\qedTestAnalyticalFalseIcon}{{\color{qedRed}\faTimes}}
+\newcommand{\qedTestNumericalTrueIcon}{{\color{qedGreen}\faCheck}}
+\newcommand{\qedTestNumericalFalseIcon}{{\color{qedRed}\faTimes}}
+\newcommand{\qedTestIndeterminateIcon}{{\color{qedYelow}\faQuestion}}
+\newcommand{\qedTestParsingErrorIcon}{{\color{qedRed}\faExclamation}}
 
 % Custom equation tags
 \newtagform{qedEquationTag}[]{(}{)}
@@ -54,10 +55,19 @@
 % Keyword arguments to the `qed' environment
 \newcommand\qedDefaultQedNumerical{fallback}
 \newcommand\qedDefaultQedTimeout{0}
+\newcommand\qedDefaultQedVariables{}
+\newcommand\qedDefaultQedATol{1e-15}
+\newcommand\qedDefaultQedRTol{1e-15}
 \newcommand\qedQedNumerical\qedDefaultQedNumerical
 \newcommand\qedQedTimeout\qedDefaultQedTimeout
+\newcommand\qedQedVariables\qedDefaultQedVariables
+\newcommand\qedQedATol\qedDefaultQedATol
+\newcommand\qedQedRTol\qedDefaultQedRTol
 \define@key{qedQedKeys}{numerical}{\renewcommand\qedQedNumerical{#1}}
 \define@key{qedQedKeys}{timeout}{\renewcommand\qedQedTimeout{#1}}
+\define@key{qedQedKeys}{variables}{\renewcommand\qedQedVariables{#1}}
+\define@key{qedQedKeys}{atol}{\renewcommand\qedQedATol{#1}}
+\define@key{qedQedKeys}{rtol}{\renewcommand\qedQedRTol{#1}}
 
 % Hack for the `qed` environment as per https://tex.stackexchange.com/a/9040
 % See below for details
@@ -90,6 +100,10 @@
     \refstepcounter{qedCounter}
     % Reset keys to defaults
     \renewcommand\qedQedNumerical\qedDefaultQedNumerical
+    \renewcommand\qedQedTimeout\qedDefaultQTimeout
+    \renewcommand\qedQedVariables\qedDefaultQedVariables
+    \renewcommand\qedQedATol\qedDefaultQedATol
+    \renewcommand\qedQedRTol\qedDefaultQedRTol
 }
 
 % Version of the `qed' environment *with* keywords provided
@@ -103,7 +117,13 @@
         ^^J% (newline char)
         "numerical": "\qedQedNumerical",%
         ^^J%
-        "timeout": "\qedQedTimeout"%
+        "timeout": "\qedQedTimeout",%
+        ^^J%
+        "atol": "\qedQedATol",%
+        ^^J%
+        "rtol": "\qedQedRTol",%
+        ^^J%
+        "variables": {\qedQedVariables}%
         ^^J%
       }
     }
