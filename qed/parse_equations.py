@@ -10,6 +10,7 @@ import warnings
 from tqdm.auto import tqdm
 import json
 import numpy as np
+from numpy.random import RandomState
 
 
 class AnalyticalTrue(BooleanTrue):
@@ -62,20 +63,31 @@ def parse_equation(equation, custom_math, options):
     # Attempt to evaluate numerically
     if options["numerical"] in ["true", "fallback"]:
 
+        # Get the user options
         variables = options["variables"]
         atol = options["atol"]
         rtol = options["rtol"]
-        value = True
+        seed = options["seed"]
+        ntests = options["ntests"]
+        low = options["low"]
+        high = options["high"]
 
-        # TODO: Determine variables automatically?
+        # Determine variables automatically?
         if len(variables) == 0:
-            symbols = expr.free_symbols
+            rng = RandomState(seed)
+            symbols = sorted(list(expr.free_symbols))
+            variables = []
+            for k in range(ntests):
+                dict_k = {}
+                for symbol in symbols:
+                    dict_k[symbol] = rng.uniform(low=low, high=high)
+                variables.append(dict_k)
 
-            return Indeterminate()
-
+        # Substitute and evaluate
         if isinstance(expr, sympy.Equality):
 
             # Check the expression for every value of each of the variables
+            value = True
             for k in range(len(variables)):
                 lhs = expr.lhs.subs(variables[k], simultaneous=True)
                 rhs = expr.rhs.subs(variables[k], simultaneous=True)
@@ -113,11 +125,14 @@ def to_icon(expr):
 
 
 def parse_options(options):
-    # TODO
-
+    # Cast settings appropriately
     options["timeout"] = float(options["timeout"])
     options["atol"] = float(options["atol"])
     options["rtol"] = float(options["rtol"])
+    options["seed"] = int(options["seed"])
+    options["ntests"] = int(options["ntests"])
+    options["low"] = float(options["low"])
+    options["high"] = float(options["high"])
 
     # Parse the variable values into substitution dicts
     sz = None
