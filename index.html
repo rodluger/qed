@@ -7,7 +7,7 @@
     <title>QED</title>
 
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <link rel="stylesheet" href="static/style.css">
@@ -74,8 +74,6 @@
 
     $(document).ready(function () {
 
-        //?eqn=3&inp=%5Csin%5E2%20x%20%2B%20%5Ccos%5E2%20x%20%3D%201&lat=%5Csin%5E2%20x%20%2B%20%5Ccos%5E2%20x%20%3D%201&sym=sin(x)%20**%202%20%2B%20cos(x)%20**%202%20%3D%201&ana=0&num=4
-
         var eqno = getURLParameter("eqn");
         var input = getURLParameter("inp");
         var latex = getURLParameter("lat");
@@ -116,6 +114,8 @@
         } else {
             document.getElementById("num-unknown").style.display = "inherit";
         }
+
+        MathJax.typeset();
 
     });
 

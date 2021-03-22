@@ -221,8 +221,8 @@ def parse_equations(path="."):
                 latex_expr = latex_expr.strip()
                 lat = lat.replace(r"\{}".format(function), latex_expr)
         for symbol in custom_math["symbols"].keys():
+            latex_expr = custom_math["symbols"][symbol]["latex"]
             if len(latex_expr):
-                latex_expr = custom_math["symbols"][symbol]["latex"]
                 latex_expr = re.sub(
                     r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr
                 )
