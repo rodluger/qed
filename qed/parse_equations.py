@@ -213,16 +213,22 @@ def parse_equations(path="."):
         lat = str(equation)
         for function in custom_math["functions"].keys():
             latex_expr = custom_math["functions"][function][0]["latex"]
-            latex_expr = re.sub(r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr)
-            latex_expr = latex_expr.replace(r"\protect", "")
-            latex_expr = latex_expr.strip()
-            lat = lat.replace(r"\{}".format(function), latex_expr)
+            if len(latex_expr):
+                latex_expr = re.sub(
+                    r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr
+                )
+                latex_expr = latex_expr.replace(r"\protect", "")
+                latex_expr = latex_expr.strip()
+                lat = lat.replace(r"\{}".format(function), latex_expr)
         for symbol in custom_math["symbols"].keys():
-            latex_expr = custom_math["symbols"][symbol]["latex"]
-            latex_expr = re.sub(r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr)
-            latex_expr = latex_expr.replace(r"\protect", "")
-            latex_expr = latex_expr.strip()
-            lat = lat.replace(r"\{}".format(symbol), latex_expr)
+            if len(latex_expr):
+                latex_expr = custom_math["symbols"][symbol]["latex"]
+                latex_expr = re.sub(
+                    r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr
+                )
+                latex_expr = latex_expr.replace(r"\protect", "")
+                latex_expr = latex_expr.strip()
+                lat = lat.replace(r"\{}".format(symbol), latex_expr)
 
         # Output dict
         output = {
