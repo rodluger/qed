@@ -92,7 +92,8 @@
     }
 
     function openInSymPyGamma() {
-        window.open("https://gamma.sympy.org/input/?i=" + getURLParameter("sym"));
+        var sympy = encodeURIComponent(getURLParameter("sym"));
+        window.open("https://gamma.sympy.org/input/?i=" + sympy);
     }
 
     $(document).ready(function () {
