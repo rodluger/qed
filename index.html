@@ -29,6 +29,7 @@
             float: right;
             margin-left: 16px;
             color: #000000 !important;
+            cursor: pointer;
         }
 
         .tool-icon:hover {
@@ -72,6 +73,28 @@
         return res;
     }
 
+    function copySymPyToClipboard() {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = getURLParameter("sym");
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+    }
+
+    function copyLaTeXToClipboard() {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = getURLParameter("inp");
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+    }
+
+    function openInSymPyGamma() {
+        window.open("https://gamma.sympy.org/input/?i=" + getURLParameter("sym"));
+    }
+
     $(document).ready(function () {
 
         var eqno = getURLParameter("eqn");
@@ -81,7 +104,6 @@
         var analytical = getURLParameter("ana");
         var numerical = getURLParameter("num");
 
-        document.getElementById("eqno").innerHTML = eqno;
         document.getElementById("latex").innerHTML = input;
         document.getElementById("rendered").innerHTML = "\\[" + latex + "\\]";
         document.getElementById("sympy").innerHTML = sympy;
@@ -137,8 +159,10 @@
             <div class="w3-container w3-card w3-white w3-margin-bottom">
 
                 <!-- Title -->
-                <h2 class="w3-text-grey w3-padding-16"><i
-                        class="fa fa-fw w3-margin-right w3-xxlarge w3-text-blue">Q</i>Equation (<span id="eqno"></span>)
+                <h2 class="w3-text-grey w3-padding-16">
+                    <i class="fa fa-fw w3-margin-right w3-xxlarge w3-text-blue" style="font-weight:600;">Q</i>
+                    <span class="w3-text-blue">qed console</span>
+                    <div style="color:#aaaaaa; float:right;">v0.1</div>
                 </h2>
 
                 <!-- Rendered -->
@@ -154,7 +178,9 @@
                 <div class="w3-container">
                     <h5 class="w3-opacity">
                         <b>LaTeX</b>
-                        <div class="tool-icon"><i class="fa fa-clone fa-fw"></i></div>
+                        <div class="tool-icon" title="Copy to clipboard" onclick="copyLaTeXToClipboard();">
+                            <i class="fa fa-clone fa-fw"></i>
+                        </div>
                     </h5>
                     <pre style="all: unset;">
                         <code class="latex">
@@ -169,8 +195,12 @@
                 <div class="w3-container">
                     <h5 class="w3-opacity">
                         <b>SymPy</b>
-                        <div class="tool-icon"><i class="fa fa-clone fa-fw"></i></div>
-                        <div class="tool-icon"><i class="fa fa-terminal fa-fw"></i></div>
+                        <div class="tool-icon" title="Copy to clipboard" onclick="copySymPyToClipboard();">
+                            <i class="fa fa-clone fa-fw"></i>
+                        </div>
+                        <div class="tool-icon" title="Open in SymPy Gamma" onclick="openInSymPyGamma();">
+                            <i class="fa fa-terminal fa-fw"></i>
+                        </div>
                     </h5>
                     <pre style="all: unset;">
                         <code class="python">
