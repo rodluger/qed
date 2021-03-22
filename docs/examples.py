@@ -4,15 +4,6 @@ import subprocess
 import shutil
 import glob
 
-try:
-    from pdf2image import convert_from_path
-except ModuleNotFoundError as e:
-
-    def delayed_import_error(*args):
-        raise e
-
-    convert_from_path = delayed_import_error
-
 INDEX_TEMPLATE = """
 Examples
 ========
@@ -36,9 +27,37 @@ EXAMPLE_TEMPLATE = """
 Generated pdf
 -------------
 
-Click :download:`here <{pdf}>` to download the PDF.
+Click `here <{pdf}>`_ to download the PDF.
 
-{images}
+.. raw:: html
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <script>
+        $(window).ready(updateHeight);
+        $(window).resize(updateHeight);
+
+        function updateHeight()
+        {{
+            var div = $('#dynamicheight');
+            var width = div.width();
+            div.css('height', width * 1.294);
+        }}
+    </script>
+
+    <style>
+        #dynamicheight
+        {{
+            width: 100%;
+        }}
+    </style>
+
+    <div id="dynamicheight">
+        <embed src="{pdf}#zoom=FitH&toolbar=0" width="100%" height="100%"/>
+    </div>
+
+    <br/>
+    <br/>
 
 LaTeX source
 ------------
@@ -114,25 +133,22 @@ def run_examples():
         # Append to the index of examples
         index.append(texfile.replace(".tex", ""))
 
-        # Convert PDF to jpeg
-        images = convert_from_path(pdffile)
-        for i, image in enumerate(images):
-            image.save(pngfile.format(i))
-        images = "\n\n".join(
-            [
-                IMAGE_TEMPLATE.format(png=os.path.basename(pngfile.format(i)))
-                for i in range(len(images))
-            ]
+        # Copy PDF to static dir
+        if not os.path.exists(os.path.join(HERE, "_static", "pdf")):
+            os.makedirs(os.path.join(HERE, "_static", "pdf"))
+        shutil.copy(
+            pdffile,
+            os.path.join(HERE, "_static", "pdf", os.path.basename(pdffile)),
+        )
+        pdffile = os.path.join(
+            HERE, "_static", "pdf", os.path.basename(pdffile)
         )
 
         # Create rst file
         with open(rstfile, "w") as f:
             print(
                 EXAMPLE_TEMPLATE.format(
-                    title=title,
-                    texfile=texfile,
-                    images=images,
-                    pdf=os.path.basename(pdffile),
+                    title=title, texfile=texfile, pdf=pdffile
                 ),
                 file=f,
             )

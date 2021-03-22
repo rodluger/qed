@@ -58,7 +58,7 @@ def parse_equation_numerical(expr, options, output):
     # Determine variables automatically?
     if len(variables) == 0:
         rng = RandomState(seed)
-        symbols = sorted(list(expr.free_symbols))
+        symbols = sorted(list(expr.free_symbols), key=lambda x: str(x))
         variables = []
         for k in range(ntests):
             dict_k = {}
