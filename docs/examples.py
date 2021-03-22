@@ -27,7 +27,7 @@ EXAMPLE_TEMPLATE = """
 Generated pdf
 -------------
 
-Click `here <../_static/pdf/{pdf}>`__ to download the PDF.
+Click `here <{static}/pdf/{pdf}>`__ to download the PDF.
 
 .. raw:: html
 
@@ -53,7 +53,7 @@ Click `here <../_static/pdf/{pdf}>`__ to download the PDF.
     </style>
 
     <div id="dynamicheight">
-        <embed src="../_static/pdf/{pdf}#zoom=FitH&toolbar=0" width="100%" height="100%"/>
+        <embed src="{static}/pdf/{pdf}#zoom=FitH&toolbar=0" width="100%" height="100%"/>
     </div>
 
     <br/>
@@ -62,7 +62,7 @@ Click `here <../_static/pdf/{pdf}>`__ to download the PDF.
 LaTeX source
 ------------
 
-Click `here <../_static/tex/{texfile}>`__ to download the TEX file.
+Click `here <{static}/tex/{texfile}>`__ to download the TEX file.
 
 .. literalinclude:: {texfile}
    :language: latex
@@ -76,7 +76,7 @@ To build the PDF, run
 
     qed-setup
 
-in the same directory as the `tex file <../_static/tex/{texfile}>`_, then compile it by running
+in the same directory as the `tex file <{static}/tex/{texfile}>`_, then compile it by running
 
 .. code-block:: bash
 
@@ -97,7 +97,7 @@ if you're using `tectonic <https://tectonic-typesetting.github.io/en-US/>`_.
 """
 
 
-def run_examples():
+def run_examples(static_path="../_static"):
 
     # Current path
     HERE = os.path.dirname(os.path.abspath(__file__))
@@ -152,7 +152,10 @@ def run_examples():
         with open(os.path.join(HERE, "examples", rstfile), "w") as f:
             print(
                 EXAMPLE_TEMPLATE.format(
-                    title=title, texfile=texfile, pdf=pdffile
+                    title=title,
+                    texfile=texfile,
+                    pdf=pdffile,
+                    static=static_path,
                 ),
                 file=f,
             )
@@ -163,4 +166,6 @@ def run_examples():
 
 
 if __name__ == "__main__":
-    run_examples()
+    # On READTHEDOCS each RST page is itself a directory,
+    # so we need to go up one extra level!
+    run_examples(static_path="../../_static")
