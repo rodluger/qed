@@ -48,7 +48,6 @@ setup(
         "numpy>=1.18.5",
         "sympy>=1.7.1",
         "antlr4-python3-runtime==4.7.2",
-        "urllib",
         "tqdm",
     ],
     extras_require={"docs": ["sphinx>=1.7.5", "rtds_action"]},
