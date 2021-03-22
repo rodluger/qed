@@ -1,4 +1,12 @@
-from .constants import QEDQEDTEXFILES
+from .constants import (
+    QEDQEDTEXFILES,
+    QEDWEBSITE,
+    QEDPASS,
+    QEDFAIL,
+    QEDERROR,
+    QEDINDET,
+    QEDNA,
+)
 from .parse_custom import parse_custom_math
 from .parse_latex_antlr import parse_latex
 from .errors import LaTeXParsingError
@@ -11,144 +19,117 @@ from tqdm.auto import tqdm
 import json
 import numpy as np
 from numpy.random import RandomState
+from urllib.parse import urlencode
 
 
-class AnalyticalTrue(BooleanTrue):
-    icon = r"\qedTestAnalyticalTrueIcon"
-
-
-class AnalyticalFalse(BooleanFalse):
-    icon = r"\qedTestAnalyticalFalseIcon"
-
-
-class NumericalTrue(BooleanTrue):
-    icon = r"\qedTestNumericalTrueIcon"
-
-
-class NumericalFalse(BooleanFalse):
-    icon = r"\qedTestNumericalFalseIcon"
-
-
-class Indeterminate:
-    icon = r"\qedTestIndeterminateIcon"
-
-
-class ParsingError:
-    icon = r"\qedTestParsingErrorIcon"
-
-
-def parse_equation(equation, custom_math, options):
-
-    # TODO: Log the outputs and errors
-
+def parse_equation_analytical(expr, options, output):
     try:
+        value = sympy.simplify(sympy.simplify(expr).doit())
+    except Exception as e:
+        warnings.warn(str(e))
+        output["ana"] = QEDERROR
+        output["aer"] = str(e)
+    else:
+        if (type(value) is BooleanTrue) or (value is True):
+            output["ana"] = QEDPASS
+        elif (type(value) is BooleanFalse) or (value is False):
+            output["ana"] = QEDFAIL
+        else:
+            output["ana"] = QEDINDET
+    return output
 
-        # Parse the equation into a SymPy expression
-        expr = parse_latex(equation, custom_math=custom_math)
 
-        # Attempt to evaluate analytically
-        if options["numerical"] != "yes":
+def parse_equation_numerical(expr, options, output):
+    """
+    TODO: Implement more granular reporting, with per-check statuses.
+          Also report the actual value of the differences.
+
+    """
+    # Get the user options
+    variables = options["variables"]
+    atol = options["atol"]
+    rtol = options["rtol"]
+    seed = options["seed"]
+    ntests = options["ntests"]
+    low = options["low"]
+    high = options["high"]
+
+    # Determine variables automatically?
+    if len(variables) == 0:
+        rng = RandomState(seed)
+        symbols = sorted(list(expr.free_symbols))
+        variables = []
+        for k in range(ntests):
+            dict_k = {}
+            for symbol in symbols:
+                dict_k[symbol] = rng.uniform(low=low, high=high)
+            variables.append(dict_k)
+
+    # Substitute and evaluate
+    value = True
+    if isinstance(expr, sympy.Equality):
+
+        # Check the expression for every value of each of the variables
+        for k in range(len(variables)):
+            lhs = expr.lhs.subs(variables[k], simultaneous=True)
+            rhs = expr.rhs.subs(variables[k], simultaneous=True)
+
+            # Check the real and imaginary parts separately
             try:
-                value = sympy.simplify(sympy.simplify(expr).doit())
-            except LaTeXParsingError as e:
+                value = value and sympy.LessThan(
+                    sympy.Abs(sympy.re(lhs - rhs)),
+                    atol + rtol * sympy.Abs(sympy.re(rhs)),
+                )
+                value = value and sympy.LessThan(
+                    sympy.Abs(sympy.im(lhs - rhs)),
+                    atol + rtol * sympy.Abs(sympy.im(rhs)),
+                )
+            except Exception as e:
+                # Fail fast
                 warnings.warn(str(e))
-                return ParsingError()
-
-            # If we can determine T/F, return
-            if (type(value) is BooleanTrue) or (value is True):
-                return AnalyticalTrue()
-            elif (type(value) is BooleanFalse) or (value is False):
-                return AnalyticalFalse()
+                output["num"] = QEDERROR
+                output["ner"] = str(e)
+                return output
             else:
-                pass
-
-        # Attempt to evaluate numerically
-        if options["numerical"] in ["yes", "fallback"]:
-
-            # Get the user options
-            variables = options["variables"]
-            atol = options["atol"]
-            rtol = options["rtol"]
-            seed = options["seed"]
-            ntests = options["ntests"]
-            low = options["low"]
-            high = options["high"]
-
-            # Determine variables automatically?
-            if len(variables) == 0:
-                rng = RandomState(seed)
-                symbols = sorted(list(expr.free_symbols))
-                variables = []
-                for k in range(ntests):
-                    dict_k = {}
-                    for symbol in symbols:
-                        dict_k[symbol] = rng.uniform(low=low, high=high)
-                    variables.append(dict_k)
-
-            # Substitute and evaluate
-            if isinstance(expr, sympy.Equality):
-
-                # Check the expression for every value of each of the variables
-                value = True
-                for k in range(len(variables)):
-                    lhs = expr.lhs.subs(variables[k], simultaneous=True)
-                    rhs = expr.rhs.subs(variables[k], simultaneous=True)
-
-                    # Check the real and imaginary parts separately
-                    try:
-                        value = value and sympy.LessThan(
-                            sympy.Abs(sympy.re(lhs - rhs)),
-                            atol + rtol * sympy.Abs(sympy.re(rhs)),
-                        )
-                        value = value and sympy.LessThan(
-                            sympy.Abs(sympy.im(lhs - rhs)),
-                            atol + rtol * sympy.Abs(sympy.im(rhs)),
-                        )
-                    except Exception as e:
-                        # TODO
-                        warnings.warn(str(e))
-                        value = False
-
                 if (type(value) is BooleanTrue) or (value is True):
-                    return NumericalTrue
+                    # On to the next check
+                    continue
                 elif (type(value) is BooleanFalse) or (value is False):
-                    return NumericalFalse()
+                    # Fail fast
+                    output["num"] = QEDFAIL
+                    return output
                 else:
-
-                    # TODO: This branch usually occurs when the user
+                    # This branch usually occurs when the user
                     # provided values for only *some* of the
-                    # free variables. Here we should re-run the
+                    # free variables. Let's re-run the
                     # evaluation with random values for the remaining
                     # variables.
-                    return Indeterminate()
+                    new_options = options.copy()
+                    new_options["variables"] = []
+                    return parse_equation_numerical(expr, new_options, output)
 
-            else:
+        # All checks passed
+        output["num"] = QEDPASS
+        return output
 
-                # TODO: Process inequalities here
-                return Indeterminate()
-
-        else:
-
-            return Indeterminate()
-
-    except Exception as e:
-
-        #
-        warnings.warn(str(e))
-        return ParsingError()
-
-
-def to_icon(expr):
-    if expr is True:
-        return r"\qedTestPassIcon"
-    elif expr is False:
-        return r"\qedTestFailIcon"
-    elif expr is None:
-        return r"\qedTestUnknownIcon"
-    elif type(expr) is LaTeXParsingError:
-        return r"\qedTestErrorIcon"
     else:
-        raise ValueError("Expression not understood.")
+
+        # TODO! Implement inequalities
+        warnings.warn("Branch not yet implemented.")
+        output["num"] = QEDINDET
+
+
+def parse_equation(expr, options, output):
+    if options["numerical"] == "yes":
+        output["ana"] = QEDNA
+        output = parse_equation_numerical(expr, options, output)
+    else:
+        output = parse_equation_analytical(expr, options, output)
+        if (output["ana"] != QEDPASS) and (options["numerical"] == "fallback"):
+            output = parse_equation_numerical(expr, options, output)
+        else:
+            output["num"] = QEDNA
+    return output
 
 
 def parse_options(options):
@@ -192,6 +173,26 @@ def parse_options(options):
     return options
 
 
+def get_badge(output):
+    # Get badge color
+    if (output["ana"] == QEDPASS) or (output["num"] == QEDPASS):
+        color = "qedGreen"
+    elif (output["ana"] in [QEDFAIL, QEDERROR]) or (
+        output["num"] in [QEDFAIL, QEDERROR]
+    ):
+        color = "qedRed"
+    else:
+        color = "qedYellow"
+
+    # Get the url
+    query_string = urlencode(output)
+    url = "{}?{}".format("QEDWEBSITE", query_string)
+
+    return r"\href{{{url}}}{{\color{{{color}}}\faCircle}}".format(
+        color=color, url=url
+    )
+
+
 def parse_equations(path="."):
     texfiles = glob.glob(
         os.path.join(path, QEDQEDTEXFILES.format(qedCounter="*"))
@@ -212,9 +213,28 @@ def parse_equations(path="."):
             options = json.load(f)
         options = parse_options(options)
 
-        # Parse the equation
-        result = parse_equation(equation, custom_math, options)
+        # Output dict
+        output = {
+            "eqn": int(os.path.basename(texfile)[:-4]),  # equation number
+            "inp": equation,  # raw latex input
+            "lat": equation,  # TODO: expanded latex input
+        }
 
-        # Generate the pass/fail icon
+        # Parse the LaTeX equation into a SymPy expression
+        try:
+            expr = parse_latex(equation, custom_math=custom_math)
+        except LaTeXParsingError as e:
+            warnings.warn(str(e))
+            output["ana"] = QEDERROR
+            output["aer"] = str(e)
+            output["num"] = QEDNA
+        else:
+            # Parse the SymPy expression into T/F
+            output = parse_equation(expr, options, output)
+
+        # Get the status badge
+        badge = get_badge(output)
+
+        # Export the badge
         with open(iconfile, "w") as f:
-            print(result.icon, file=f)
+            print(badge, file=f)

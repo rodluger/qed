@@ -12,6 +12,7 @@
 \fi
 \RequirePackage{fontawesome} % custom symbols
 \RequirePackage{keyval} % keyword arguments to macros
+\RequirePackage[hidelinks]{hyperref} % url links
 
 % Package options
 \DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
@@ -38,13 +39,7 @@
 % Define equation tags for passing / failing expressions
 \definecolor{qedGreen}{rgb}{0.13333333,0.5254902,0.22745098}
 \definecolor{qedRed}{rgb}{0.79607843,0.14117647,0.19215686}
-\definecolor{qedYelow}{rgb}{1.0,0.88,0.30}
-\newcommand{\qedTestAnalyticalTrueIcon}{{\color{qedGreen}\faCheck}}
-\newcommand{\qedTestAnalyticalFalseIcon}{{\color{qedRed}\faTimes}}
-\newcommand{\qedTestNumericalTrueIcon}{{\color{qedGreen}\faCheck}}
-\newcommand{\qedTestNumericalFalseIcon}{{\color{qedRed}\faTimes}}
-\newcommand{\qedTestIndeterminateIcon}{{\color{qedYelow}\faQuestion}}
-\newcommand{\qedTestParsingErrorIcon}{{\color{qedRed}\faExclamation}}
+\definecolor{qedYellow}{rgb}{1.0,0.88,0.30}
 
 % Custom equation tags
 \newtagform{qedEquationTag}[]{(}{)}

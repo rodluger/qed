@@ -15,3 +15,11 @@ QEDFILES = [
 QEDDIRS = [".qed", os.path.join(".qed", "qed")]
 
 QEDSEPARATORS = ["|", ",", ";"]
+
+QEDWEBSITE = "https://rodluger.github.io/qed"
+
+QEDPASS = 0
+QEDFAIL = 1
+QEDERROR = 2
+QEDINDET = 3
+QEDNA = 4

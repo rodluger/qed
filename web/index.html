@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>QED</title>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="static/style.css">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        html,
+        body,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: "Roboto", sans-serif
+        }
+
+        .tool-icon {
+            float: right;
+            margin-left: 16px;
+            color: #000000 !important;
+        }
+
+        .tool-icon:hover {
+            color: #008cff !important;
+        }
+
+        .test-passed {
+            color: #228639 !important;
+        }
+
+        .test-failed,
+        .test-error {
+            color: #cb2432 !important;
+        }
+
+        .test-indeterminate {
+            color: #dec443 !important;
+        }
+
+        .test-not-performed {
+            color: #757575 !important;
+        }
+
+        .test-unknown {
+            color: #757575 !important;
+        }
+    </style>
+
+    <link rel="stylesheet" href="static/highlight/styles/default.css">
+    <script src="static/highlight/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+</head>
+
+<body class="w3-light-grey"></body>
+
+<script>
+
+    function getURLParameter(name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
+    }
+
+    $(document).ready(function () {
+
+        //?eqn=3&inp=%5Csin%5E2%20x%20%2B%20%5Ccos%5E2%20x%20%3D%201&lat=%5Csin%5E2%20x%20%2B%20%5Ccos%5E2%20x%20%3D%201&sym=sin(x)%20**%202%20%2B%20cos(x)%20**%202%20%3D%201&ana=0&num=4
+
+        var eqno = getURLParameter("eqn");
+        var input = getURLParameter("inp");
+        var latex = getURLParameter("lat");
+        var sympy = getURLParameter("sym");
+        var analytical = getURLParameter("ana");
+        var numerical = getURLParameter("num");
+
+        document.getElementById("eqno").innerHTML = eqno;
+        document.getElementById("latex").innerHTML = input;
+        document.getElementById("rendered").innerHTML = "\\[" + latex + "\\]";
+        document.getElementById("sympy").innerHTML = sympy;
+
+
+        if (analytical == 0) {
+            document.getElementById("ana-passed").style.display = "inherit";
+        } else if (analytical == 1) {
+            document.getElementById("ana-failed").style.display = "inherit";
+        } else if (analytical == 2) {
+            document.getElementById("ana-error").style.display = "inherit";
+        } else if (analytical == 3) {
+            document.getElementById("ana-indeterminate").style.display = "inherit";
+        } else if (analytical == 4) {
+            document.getElementById("ana-not-performed").style.display = "inherit";
+        } else {
+            document.getElementById("ana-unknown").style.display = "inherit";
+        }
+
+        if (numerical == 0) {
+            document.getElementById("num-passed").style.display = "inherit";
+        } else if (numerical == 1) {
+            document.getElementById("num-failed").style.display = "inherit";
+        } else if (numerical == 2) {
+            document.getElementById("num-error").style.display = "inherit";
+        } else if (numerical == 3) {
+            document.getElementById("num-indeterminate").style.display = "inherit";
+        } else if (numerical == 4) {
+            document.getElementById("num-not-performed").style.display = "inherit";
+        } else {
+            document.getElementById("num-unknown").style.display = "inherit";
+        }
+
+    });
+
+</script>
+
+
+<!-- Page Container -->
+
+<div class="w3-content w3-margin-top" style="max-width:600px;">
+
+
+
+    <!-- The Grid -->
+    <div class="w3-row-padding">
+
+        <!-- Right Column -->
+        <div>
+
+            <div class="w3-container w3-card w3-white w3-margin-bottom">
+
+                <!-- Title -->
+                <h2 class="w3-text-grey w3-padding-16"><i
+                        class="fa fa-fw w3-margin-right w3-xxlarge w3-text-blue">Q</i>Equation (<span id="eqno"></span>)
+                </h2>
+
+                <!-- Rendered -->
+                <div class="w3-container">
+                    <h5 class="w3-opacity"><b>Rendered</b></h5>
+                    <p>
+                        <span id="rendered"></span>
+                    </p>
+                    <hr>
+                </div>
+
+                <!-- LaTeX -->
+                <div class="w3-container">
+                    <h5 class="w3-opacity">
+                        <b>LaTeX</b>
+                        <div class="tool-icon"><i class="fa fa-clone fa-fw"></i></div>
+                    </h5>
+                    <pre style="all: unset;">
+                        <code class="latex">
+                            <div style="text-align: center; padding: 1em;" id="latex">
+                            </div>
+                        </code>
+                    </pre>
+                    <hr>
+                </div>
+
+                <!-- SymPy -->
+                <div class="w3-container">
+                    <h5 class="w3-opacity">
+                        <b>SymPy</b>
+                        <div class="tool-icon"><i class="fa fa-clone fa-fw"></i></div>
+                        <div class="tool-icon"><i class="fa fa-terminal fa-fw"></i></div>
+                    </h5>
+                    <pre style="all: unset;">
+                        <code class="python">
+                            <div style="text-align: center; padding: 1em;" id="sympy">
+                            </div>
+                        </code>
+                    </pre>
+                    <hr>
+                </div>
+
+                <!-- Analytical -->
+                <div class="w3-container">
+                    <h5 class="w3-opacity"><b>Analytical check</b></h5>
+                    <p>
+                    <h6 class="test-passed" id="ana-passed" style="display: none;">
+                        <i class="fa fa-check fa-fw w3-margin-right"></i>
+                        Passed
+                    </h6>
+                    <h6 class="test-failed" id="ana-failed" style="display: none;">
+                        <i class="fa fa-times fa-fw w3-margin-right"></i>
+                        Failed
+                    </h6>
+                    <h6 class="test-error" id="ana-error" style="display: none;">
+                        <i class="fa fa-exclamation fa-fw w3-margin-right"></i>
+                        Error
+                    </h6>
+                    <h6 class="test-indeterminate" id="ana-indeterminate" style="display: none;">
+                        <i class="fa fa-question fa-fw w3-margin-right"></i>
+                        Indeterminate
+                    </h6>
+                    <h6 class="test-not-performed" id="ana-not-performed" style="display: none;">
+                        <i class="fa fa-minus fa-fw w3-margin-right"></i>
+                        Not performed
+                    </h6>
+                    <h6 class="test-unknown" id="ana-unknown" style="display: none;">
+                        <i class="fa fa-question fa-fw w3-margin-right"></i>
+                        Unknown
+                    </h6>
+                    </p>
+                    <hr>
+                </div>
+
+                <!-- Numerical -->
+                <div class="w3-container">
+                    <h5 class="w3-opacity"><b>Numerical check</b></h5>
+                    <p>
+                    <h6 class="test-passed" id="num-passed" style="display: none;">
+                        <i class="fa fa-check fa-fw w3-margin-right"></i>
+                        Passed
+                    </h6>
+                    <h6 class="test-failed" id="num-failed" style="display: none;">
+                        <i class="fa fa-times fa-fw w3-margin-right"></i>
+                        Failed
+                    </h6>
+                    <h6 class="test-error" id="num-error" style="display: none;">
+                        <i class="fa fa-exclamation fa-fw w3-margin-right"></i>
+                        Error
+                    </h6>
+                    <h6 class="test-indeterminate" id="num-indeterminate" style="display: none;">
+                        <i class="fa fa-question fa-fw w3-margin-right"></i>
+                        Indeterminate
+                    </h6>
+                    <h6 class="test-not-performed" id="num-not-performed" style="display: none;">
+                        <i class="fa fa-minus fa-fw w3-margin-right"></i>
+                        Not performed
+                    </h6>
+                    <h6 class="test-unknown" id="num-unknown" style="display: none;">
+                        <i class="fa fa-question fa-fw w3-margin-right"></i>
+                        Unknown
+                    </h6>
+                    </p>
+                </div>
+
+                <!--
+                <div class="w3-container">
+                    <h5 class="w3-opacity"><b>Thingy</b></h5>
+                    <h6 class="w3-text-blue"><i class="fa fa-check fa-fw w3-margin-right"></i>Stuff <span
+                            class="w3-tag w3-blue w3-round">Badge</span></h6>
+                    </h6>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. </p><br>
+                </div>
+                -->
+
+            </div>
+
+            <!-- End Right Column -->
+        </div>
+
+        <!-- End Grid -->
+    </div>
+
+    <!-- End Page Container -->
+</div>
+
+</body>
+
+
+</html>
