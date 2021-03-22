@@ -190,7 +190,7 @@ def get_badge(output):
     query_string = urlencode(output)
     url = "{}?{}".format(QEDWEBSITE, query_string)
 
-    return r"\href{{{url}}}{{\color{{{color}}}\faCircle}}".format(
+    return r"\href{{{url}}}{{\color{{{color}}}\faSquare}}".format(
         color=color, url=url
     )
 
