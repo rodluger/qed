@@ -36,8 +36,8 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: examples-for-${{ github.sha }}
-          path: docs/examples
+          name: docs-for-${{ github.sha }}
+          path: docs
 
       - name: Trigger RTDs build
         uses: dfm/rtds-action@v1
