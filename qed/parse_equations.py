@@ -20,6 +20,7 @@ import json
 import numpy as np
 from numpy.random import RandomState
 from urllib.parse import urlencode
+import re
 
 
 def parse_equation_analytical(expr, options, output):
@@ -186,7 +187,7 @@ def get_badge(output):
 
     # Get the url
     query_string = urlencode(output)
-    url = "{}?{}".format("QEDWEBSITE", query_string)
+    url = "{}?{}".format(QEDWEBSITE, query_string)
 
     return r"\href{{{url}}}{{\color{{{color}}}\faCircle}}".format(
         color=color, url=url
@@ -208,17 +209,32 @@ def parse_equations(path="."):
         with open(texfile, "r") as f:
             equation = f.read()
 
-        # Read the options
-        with open(optfile, "r") as f:
-            options = json.load(f)
-        options = parse_options(options)
+        # Expand the function & symbol defs
+        lat = str(equation)
+        for function in custom_math["functions"].keys():
+            latex_expr = custom_math["functions"][function][0]["latex"]
+            latex_expr = re.sub(r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr)
+            latex_expr = latex_expr.replace(r"\protect", "")
+            latex_expr = latex_expr.strip()
+            lat = lat.replace(r"\{}".format(function), latex_expr)
+        for symbol in custom_math["symbols"].keys():
+            latex_expr = custom_math["symbols"][symbol]["latex"]
+            latex_expr = re.sub(r"\\ensuremath\s+?\{(.*?)}", r"\1", latex_expr)
+            latex_expr = latex_expr.replace(r"\protect", "")
+            latex_expr = latex_expr.strip()
+            lat = lat.replace(r"\{}".format(symbol), latex_expr)
 
         # Output dict
         output = {
             "eqn": int(os.path.basename(texfile)[:-4]),  # equation number
-            "inp": equation,  # raw latex input
-            "lat": equation,  # TODO: expanded latex input
+            "inp": equation.replace("=", "%3D"),  # raw latex input
+            "lat": lat.replace("=", "%3D"),  # expanded latex input
         }
+
+        # Read the options
+        with open(optfile, "r") as f:
+            options = json.load(f)
+        options = parse_options(options)
 
         # Parse the LaTeX equation into a SymPy expression
         try:
@@ -229,6 +245,7 @@ def parse_equations(path="."):
             output["aer"] = str(e)
             output["num"] = QEDNA
         else:
+            output["sym"] = expr
             # Parse the SymPy expression into T/F
             output = parse_equation(expr, options, output)
 

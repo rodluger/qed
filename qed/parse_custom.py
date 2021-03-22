@@ -71,6 +71,9 @@ def parse_custom_functions(path="."):
         }
         if name in func_dict.keys():
             func_dict[name] += [props]
+            assert (
+                func_dict[name][0]["latex"] == latex
+            ), "All variants of a function must have the same `latex` attribute."
         else:
             func_dict[name] = [props]
 

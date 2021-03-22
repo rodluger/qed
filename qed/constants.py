@@ -16,7 +16,7 @@ QEDDIRS = [".qed", os.path.join(".qed", "qed")]
 
 QEDSEPARATORS = ["|", ",", ";"]
 
-QEDWEBSITE = "https://rodluger.github.io/qed"
+QEDWEBSITE = "https://luger.dev/qed"
 
 QEDPASS = 0
 QEDFAIL = 1
