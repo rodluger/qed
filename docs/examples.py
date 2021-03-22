@@ -27,11 +27,11 @@ EXAMPLE_TEMPLATE = """
 Generated pdf
 -------------
 
-Click `here <{pdf}>`_ to download the PDF.
+Click `here <../_static/pdf/{pdf}>`__ to download the PDF.
 
 .. raw:: html
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
         $(window).ready(updateHeight);
@@ -53,7 +53,7 @@ Click `here <{pdf}>`_ to download the PDF.
     </style>
 
     <div id="dynamicheight">
-        <embed src="{pdf}#zoom=FitH&toolbar=0" width="100%" height="100%"/>
+        <embed src="../_static/pdf/{pdf}#zoom=FitH&toolbar=0" width="100%" height="100%"/>
     </div>
 
     <br/>
@@ -62,7 +62,7 @@ Click `here <{pdf}>`_ to download the PDF.
 LaTeX source
 ------------
 
-Click :download:`here <{texfile}>` to download the TEX file.
+Click `here <../_static/tex/{texfile}>`__ to download the TEX file.
 
 .. literalinclude:: {texfile}
    :language: latex
@@ -76,7 +76,7 @@ To build the PDF, run
 
     qed-setup
 
-in the same directory as the :download:`tex file <{texfile}>`, then compile it by running
+in the same directory as the `tex file <../_static/tex/{texfile}>`_, then compile it by running
 
 .. code-block:: bash
 
@@ -117,15 +117,30 @@ def run_examples():
     )
     subprocess.check_output(["make"], cwd=os.path.join(HERE, "examples"))
 
+    # We're going to move the pdf and tex files to the _static directory
+    if not os.path.exists(os.path.join(HERE, "examples", "_static", "pdf")):
+        os.makedirs(os.path.join(HERE, "examples", "_static", "pdf"))
+    if not os.path.exists(os.path.join(HERE, "examples", "_static", "tex")):
+        os.makedirs(os.path.join(HERE, "examples", "_static", "tex"))
+
     # Process each example
     index = []
     for file in glob.glob(os.path.join(HERE, "examples", "*.tex")):
 
-        # File names
+        # File basenames
         texfile = os.path.basename(file)
-        rstfile = os.path.join("examples", texfile.replace(".tex", ".rst"))
-        pdffile = rstfile.replace(".rst", ".pdf")
-        pngfile = rstfile.replace(".rst", "{}.png")
+        rstfile = texfile.replace(".tex", ".rst")
+        pdffile = texfile.replace(".tex", ".pdf")
+
+        # Copy the files to the _static dir
+        shutil.copy(
+            os.path.join(HERE, "examples", texfile),
+            os.path.join(HERE, "examples", "_static", "tex", texfile),
+        )
+        shutil.copy(
+            os.path.join(HERE, "examples", pdffile),
+            os.path.join(HERE, "examples", "_static", "pdf", pdffile),
+        )
 
         # Get example title
         title = texfile.replace(".tex", "").replace("_", " ").title()
@@ -133,19 +148,8 @@ def run_examples():
         # Append to the index of examples
         index.append(texfile.replace(".tex", ""))
 
-        # Copy PDF to static dir
-        if not os.path.exists(os.path.join(HERE, "_static", "pdf")):
-            os.makedirs(os.path.join(HERE, "_static", "pdf"))
-        shutil.copy(
-            pdffile,
-            os.path.join(HERE, "_static", "pdf", os.path.basename(pdffile)),
-        )
-        pdffile = os.path.join(
-            HERE, "_static", "pdf", os.path.basename(pdffile)
-        )
-
         # Create rst file
-        with open(rstfile, "w") as f:
+        with open(os.path.join(HERE, "examples", rstfile), "w") as f:
             print(
                 EXAMPLE_TEMPLATE.format(
                     title=title, texfile=texfile, pdf=pdffile

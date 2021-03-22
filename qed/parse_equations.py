@@ -6,6 +6,7 @@ from .constants import (
     QEDERROR,
     QEDINDET,
     QEDNA,
+    QEDBUILTINS,
 )
 from .parse_custom import parse_custom_math
 from .parse_latex_antlr import parse_latex
@@ -229,6 +230,8 @@ def parse_equations(path="."):
                 latex_expr = latex_expr.replace(r"\protect", "")
                 latex_expr = latex_expr.strip()
                 lat = lat.replace(r"\{}".format(symbol), latex_expr)
+        for key, val in QEDBUILTINS.items():
+            lat = lat.replace(key, val)
 
         # Output dict
         output = {

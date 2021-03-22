@@ -46,7 +46,7 @@ else:
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
-html_static_path = ["_static"]
+html_static_path = ["_static", "examples/_static"]
 html_css_files = ["custom.css"]
 
 # List of patterns, relative to source directory, that match files and
@@ -65,14 +65,10 @@ html_theme_options = {"display_version": True}
 html_last_updated_fmt = "%Y %b %d at %H:%M:%S UTC"
 html_show_sourcelink = False
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-
 
 # -- rtds_action settings -----------------------------------------------------
 
 rtds_action_github_repo = "rodluger/qed"
-rtds_action_path = "."
-rtds_action_artifact_prefix = "docs-for-"
+rtds_action_path = "examples"
+rtds_action_artifact_prefix = "examples-for-"
 rtds_action_github_token = os.environ.get("GITHUB_TOKEN", "")

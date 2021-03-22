@@ -1,5 +1,6 @@
 import os
 
+# Temporary files
 QEDFUNCTIONFILE = os.path.join(".qed", "functions.qed")
 QEDSYMBOLFILE = os.path.join(".qed", "symbols.qed")
 QEDQEDICONFILES = os.path.join(".qed", "qed", "{qedCounter}.icon")
@@ -14,10 +15,16 @@ QEDFILES = [
 ]
 QEDDIRS = [".qed", os.path.join(".qed", "qed")]
 
+# Function argument separators
 QEDSEPARATORS = ["|", ",", ";"]
 
+# Built-in defs
+QEDBUILTINS = {r"\dd": "d"}
+
+# Console web address
 QEDWEBSITE = "https://luger.dev/qed"
 
+# Status badge codes
 QEDPASS = 0
 QEDFAIL = 1
 QEDERROR = 2
