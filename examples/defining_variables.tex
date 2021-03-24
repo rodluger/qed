@@ -1,0 +1,43 @@
+\documentclass{article}
+\usepackage[elliptic]{qed}
+
+\begin{document}
+
+
+
+\section*{Defining variables}
+
+We can define a variable for use later in the document by using the
+equivalence ($\equiv$) symbol inside an equation:
+%
+\begin{qed}
+    x \equiv \sqrt{16}
+\end{qed}
+%
+Note the icon next to the equation; \textsf{qed} did not perform
+any tests but instead stored the expression for $x$.
+%
+We can then reference $x$ in subsequent equations, and \textsf{qed}
+will recognize it and automatically substitute its definition:
+%
+\begin{qed}
+    x = 4
+\end{qed}
+%
+For convenience, users can also use the starred version of the
+equivalence commmand (\verb!\equiv*!), which behaves in the same
+way but typesets as a regular equality symbol:
+%
+%
+\begin{qed}
+    y \equiv* \sqrt{25}
+\end{qed}
+%
+This works just as before:
+%
+\begin{qed}
+    y = 5
+\end{qed}
+%
+%
+\end{document}

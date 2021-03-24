@@ -5,15 +5,11 @@
 \RequirePackage{mathtools} % equation tags
 \RequirePackage{fancyvrb} % outputing to files
 \RequirePackage{xcolor} % custom colors
-\RequirePackage{ifxetex} % enable fontawesome for xetex
-\ifxetex
-  \RequirePackage{fontspec}
-  \defaultfontfeatures{Extension = .otf}
-\fi
-\RequirePackage{fontawesome} % custom symbols
 \RequirePackage{keyval} % keyword arguments to macros
 \RequirePackage[hidelinks]{hyperref} % url links
 \RequirePackage{stringstrings} % for user-defined command names
+\RequirePackage{suffix} % allows definition of starred commmands
+\RequirePackage{amssymb} % QED symbol
 
 % Package options
 \DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
@@ -174,7 +170,7 @@
 % Keyword arguments to `\qedfunction'
 \newcommand\qedDefaultFunctionDescription{User-defined function}
 \newcommand\qedDefaultFunctionArguments{x}
-\newcommand\qedDefaultFunctionSympy{{lambda *args: 0.0}}
+\newcommand\qedDefaultFunctionSympy{lambda *args: 0.0}
 \newcommand\qedFunctionDescription\qedDefaultFunctionDescription
 \newcommand\qedFunctionArguments\qedDefaultFunctionArguments
 \newcommand\qedFunctionSympy\qedDefaultFunctionSympy
@@ -213,7 +209,7 @@
 
 % Keyword arguments to `\qedsymbol'
 \newcommand\qedDefaultSymbolDescription{User-defined symbol}
-\newcommand\qedDefaultSymbolSympy{{sympy.Integer(0)}}
+\newcommand\qedDefaultSymbolSympy{sympy.Integer(0)}
 \newcommand\qedSymbolDescription\qedDefaultSymbolDescription
 \newcommand\qedSymbolSympy\qedDefaultSymbolSympy
 \define@key{qedSymbolKeys}{name}{%
@@ -250,7 +246,8 @@
 }
 
 % Built-in definitions
-\newcommand{\dd}{\mathrm{d}}
+\newcommand{\dd}{\mathrm{d}} % differential operator
+\WithSuffix\newcommand\equiv*{=} % equivalence displayed as equality
 
 % Standard symbols
 \qedsymbol{

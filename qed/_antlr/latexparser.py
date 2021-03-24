@@ -20,7 +20,7 @@ import sys
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3[")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\\")
         buf.write("\u0217\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
@@ -69,29 +69,29 @@ def serializedATN():
         buf.write(")\3*\3*\3*\3*\3*\3*\5*\u0205\n*\3+\3+\3+\3+\3+\3,\3,\3")
         buf.write(",\3,\3,\3-\7-\u0212\n-\f-\16-\u0215\13-\3-\3\u0213\b\4")
         buf.write('\n\f\16 ".\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 "')
-        buf.write("$&(*,.\60\62\64\668:<>@BDFHJLNPRTVX\2\f\4\2PSVW\3\2\17")
-        buf.write("\20\5\2\21\22BDLL\4\2NN[[\4\2\33\33\36\36\4\2\33\33\37")
-        buf.write("\37\3\2FH\3\2';\3\2\33\35\3\2%&\2\u023b\2Z\3\2\2\2\4")
-        buf.write("]\3\2\2\2\6h\3\2\2\2\bl\3\2\2\2\nn\3\2\2\2\fy\3\2\2\2")
-        buf.write("\16\u0084\3\2\2\2\20\u0096\3\2\2\2\22\u00a1\3\2\2\2\24")
-        buf.write("\u00a3\3\2\2\2\26\u00aa\3\2\2\2\30\u00b3\3\2\2\2\32\u00b5")
-        buf.write("\3\2\2\2\34\u00bd\3\2\2\2\36\u00c5\3\2\2\2 \u00cd\3\2")
-        buf.write('\2\2"\u00e1\3\2\2\2$\u00fd\3\2\2\2&\u0106\3\2\2\2(\u0118')
-        buf.write("\3\2\2\2*\u011a\3\2\2\2,\u011e\3\2\2\2.\u012b\3\2\2\2")
-        buf.write("\60\u012d\3\2\2\2\62\u0131\3\2\2\2\64\u0135\3\2\2\2\66")
-        buf.write("\u013d\3\2\2\28\u0140\3\2\2\2:\u0148\3\2\2\2<\u0150\3")
-        buf.write("\2\2\2>\u0154\3\2\2\2@\u0158\3\2\2\2B\u015a\3\2\2\2D\u015d")
-        buf.write("\3\2\2\2F\u01d7\3\2\2\2H\u01de\3\2\2\2J\u01e0\3\2\2\2")
-        buf.write("L\u01f2\3\2\2\2N\u01f4\3\2\2\2P\u01f6\3\2\2\2R\u01fe\3")
-        buf.write("\2\2\2T\u0206\3\2\2\2V\u020b\3\2\2\2X\u0213\3\2\2\2Z[")
-        buf.write("\5\4\3\2[\\\5X-\2\\\3\3\2\2\2]^\b\3\1\2^_\5\b\5\2_e\3")
-        buf.write("\2\2\2`a\f\4\2\2ab\t\2\2\2bd\5\4\3\5c`\3\2\2\2dg\3\2\2")
-        buf.write("\2ec\3\2\2\2ef\3\2\2\2f\5\3\2\2\2ge\3\2\2\2hi\5\b\5\2")
-        buf.write("ij\7P\2\2jk\5\b\5\2k\7\3\2\2\2lm\5\n\6\2m\t\3\2\2\2no")
-        buf.write("\b\6\1\2op\5\f\7\2pv\3\2\2\2qr\f\4\2\2rs\t\3\2\2su\5\n")
-        buf.write("\6\5tq\3\2\2\2ux\3\2\2\2vt\3\2\2\2vw\3\2\2\2w\13\3\2\2")
-        buf.write("\2xv\3\2\2\2yz\b\7\1\2z{\5\20\t\2{\u0081\3\2\2\2|}\f\4")
-        buf.write("\2\2}~\t\4\2\2~\u0080\5\f\7\5\177|\3\2\2\2\u0080\u0083")
+        buf.write("$&(*,.\60\62\64\668:<>@BDFHJLNPRTVX\2\f\4\2PTWX\3\2\17")
+        buf.write("\20\5\2\21\22BDLL\4\2NN\\\\\4\2\33\33\36\36\4\2\33\33")
+        buf.write("\37\37\3\2FH\3\2';\3\2\33\35\3\2%&\2\u023b\2Z\3\2\2\2")
+        buf.write("\4]\3\2\2\2\6h\3\2\2\2\bl\3\2\2\2\nn\3\2\2\2\fy\3\2\2")
+        buf.write("\2\16\u0084\3\2\2\2\20\u0096\3\2\2\2\22\u00a1\3\2\2\2")
+        buf.write("\24\u00a3\3\2\2\2\26\u00aa\3\2\2\2\30\u00b3\3\2\2\2\32")
+        buf.write("\u00b5\3\2\2\2\34\u00bd\3\2\2\2\36\u00c5\3\2\2\2 \u00cd")
+        buf.write('\3\2\2\2"\u00e1\3\2\2\2$\u00fd\3\2\2\2&\u0106\3\2\2\2')
+        buf.write("(\u0118\3\2\2\2*\u011a\3\2\2\2,\u011e\3\2\2\2.\u012b\3")
+        buf.write("\2\2\2\60\u012d\3\2\2\2\62\u0131\3\2\2\2\64\u0135\3\2")
+        buf.write("\2\2\66\u013d\3\2\2\28\u0140\3\2\2\2:\u0148\3\2\2\2<\u0150")
+        buf.write("\3\2\2\2>\u0154\3\2\2\2@\u0158\3\2\2\2B\u015a\3\2\2\2")
+        buf.write("D\u015d\3\2\2\2F\u01d7\3\2\2\2H\u01de\3\2\2\2J\u01e0\3")
+        buf.write("\2\2\2L\u01f2\3\2\2\2N\u01f4\3\2\2\2P\u01f6\3\2\2\2R\u01fe")
+        buf.write("\3\2\2\2T\u0206\3\2\2\2V\u020b\3\2\2\2X\u0213\3\2\2\2")
+        buf.write("Z[\5\4\3\2[\\\5X-\2\\\3\3\2\2\2]^\b\3\1\2^_\5\b\5\2_e")
+        buf.write("\3\2\2\2`a\f\4\2\2ab\t\2\2\2bd\5\4\3\5c`\3\2\2\2dg\3\2")
+        buf.write("\2\2ec\3\2\2\2ef\3\2\2\2f\5\3\2\2\2ge\3\2\2\2hi\5\b\5")
+        buf.write("\2ij\7P\2\2jk\5\b\5\2k\7\3\2\2\2lm\5\n\6\2m\t\3\2\2\2")
+        buf.write("no\b\6\1\2op\5\f\7\2pv\3\2\2\2qr\f\4\2\2rs\t\3\2\2su\5")
+        buf.write("\n\6\5tq\3\2\2\2ux\3\2\2\2vt\3\2\2\2vw\3\2\2\2w\13\3\2")
+        buf.write("\2\2xv\3\2\2\2yz\b\7\1\2z{\5\20\t\2{\u0081\3\2\2\2|}\f")
+        buf.write("\4\2\2}~\t\4\2\2~\u0080\5\f\7\5\177|\3\2\2\2\u0080\u0083")
         buf.write("\3\2\2\2\u0081\177\3\2\2\2\u0081\u0082\3\2\2\2\u0082\r")
         buf.write("\3\2\2\2\u0083\u0081\3\2\2\2\u0084\u0085\b\b\1\2\u0085")
         buf.write("\u0086\5\22\n\2\u0086\u008c\3\2\2\2\u0087\u0088\f\4\2")
@@ -112,7 +112,7 @@ def serializedATN():
         buf.write('\25\3\2\2\2\u00a9\u00a7\3\2\2\2\u00aa\u00ae\5"\22\2\u00ab')
         buf.write("\u00ad\5\30\r\2\u00ac\u00ab\3\2\2\2\u00ad\u00b0\3\2\2")
         buf.write("\2\u00ae\u00ac\3\2\2\2\u00ae\u00af\3\2\2\2\u00af\27\3")
-        buf.write("\2\2\2\u00b0\u00ae\3\2\2\2\u00b1\u00b4\7Z\2\2\u00b2\u00b4")
+        buf.write("\2\2\2\u00b0\u00ae\3\2\2\2\u00b1\u00b4\7[\2\2\u00b2\u00b4")
         buf.write("\5\32\16\2\u00b3\u00b1\3\2\2\2\u00b3\u00b2\3\2\2\2\u00b4")
         buf.write("\31\3\2\2\2\u00b5\u00bb\7\33\2\2\u00b6\u00bc\5\36\20\2")
         buf.write("\u00b7\u00bc\5\34\17\2\u00b8\u00b9\5\36\20\2\u00b9\u00ba")
@@ -162,8 +162,8 @@ def serializedATN():
         buf.write("\u010c\3\2\2\2\u0118\u0110\3\2\2\2\u0118\u0114\3\2\2\2")
         buf.write("\u0119)\3\2\2\2\u011a\u011b\7\33\2\2\u011b\u011c\5\b\5")
         buf.write("\2\u011c\u011d\7\33\2\2\u011d+\3\2\2\2\u011e\u011f\6\27")
-        buf.write("\b\2\u011f\u0120\7[\2\2\u0120-\3\2\2\2\u0121\u012c\5,")
-        buf.write("\27\2\u0122\u0124\t\5\2\2\u0123\u0125\5P)\2\u0124\u0123")
+        buf.write("\b\2\u011f\u0120\7\\\2\2\u0120-\3\2\2\2\u0121\u012c\5")
+        buf.write(",\27\2\u0122\u0124\t\5\2\2\u0123\u0125\5P)\2\u0124\u0123")
         buf.write("\3\2\2\2\u0124\u0125\3\2\2\2\u0125\u012c\3\2\2\2\u0126")
         buf.write("\u012c\7O\2\2\u0127\u012c\7M\2\2\u0128\u012c\5\64\33\2")
         buf.write("\u0129\u012c\5\60\31\2\u012a\u012c\5\62\32\2\u012b\u0121")
@@ -186,7 +186,7 @@ def serializedATN():
         buf.write("\5\b\5\2\u0152\u0153\7=\2\2\u0153=\3\2\2\2\u0154\u0155")
         buf.write("\7>\2\2\u0155\u0156\5\b\5\2\u0156\u0157\7?\2\2\u0157?")
         buf.write("\3\2\2\2\u0158\u0159\t\t\2\2\u0159A\3\2\2\2\u015a\u015b")
-        buf.write('\6"\t\2\u015b\u015c\7[\2\2\u015cC\3\2\2\2\u015d\u015e')
+        buf.write('\6"\t\2\u015b\u015c\7\\\2\2\u015cC\3\2\2\2\u015d\u015e')
         buf.write('\t\n\2\2\u015eE\3\2\2\2\u015f\u0160\5B"\2\u0160\u0161')
         buf.write("\7\23\2\2\u0161\u0185\5\b\5\2\u0162\u0163\5D#\2\u0163")
         buf.write("\u0183\5\b\5\2\u0164\u0165\5D#\2\u0165\u0181\5\b\5\2\u0166")
@@ -365,6 +365,7 @@ class LaTeXParser(Parser):
         "<INVALID>",
         "<INVALID>",
         "<INVALID>",
+        "<INVALID>",
         "'\\neq'",
         "'<'",
         "<INVALID>",
@@ -457,6 +458,7 @@ class LaTeXParser(Parser):
         "LETTER",
         "NUMBER",
         "EQUAL",
+        "EQUIV",
         "NEQ",
         "LT",
         "LTE",
@@ -641,17 +643,18 @@ class LaTeXParser(Parser):
     LETTER = 76
     NUMBER = 77
     EQUAL = 78
-    NEQ = 79
-    LT = 80
-    LTE = 81
-    LTE_Q = 82
-    LTE_S = 83
-    GT = 84
-    GTE = 85
-    GTE_Q = 86
-    GTE_S = 87
-    BANG = 88
-    SYMBOL = 89
+    EQUIV = 79
+    NEQ = 80
+    LT = 81
+    LTE = 82
+    LTE_Q = 83
+    LTE_S = 84
+    GT = 85
+    GTE = 86
+    GTE_Q = 87
+    GTE_S = 88
+    BANG = 89
+    SYMBOL = 90
 
     def __init__(self, input: TokenStream, output: TextIO = sys.stdout):
         super().__init__(input, output)
@@ -720,6 +723,9 @@ class LaTeXParser(Parser):
         def EQUAL(self):
             return self.getToken(LaTeXParser.EQUAL, 0)
 
+        def EQUIV(self):
+            return self.getToken(LaTeXParser.EQUIV, 0)
+
         def LT(self):
             return self.getToken(LaTeXParser.LT, 0)
 
@@ -783,6 +789,7 @@ class LaTeXParser(Parser):
                                 (1 << (_la - 78))
                                 & (
                                     (1 << (LaTeXParser.EQUAL - 78))
+                                    | (1 << (LaTeXParser.EQUIV - 78))
                                     | (1 << (LaTeXParser.NEQ - 78))
                                     | (1 << (LaTeXParser.LT - 78))
                                     | (1 << (LaTeXParser.LTE - 78))

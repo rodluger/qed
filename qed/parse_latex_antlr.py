@@ -1,6 +1,7 @@
 from ._antlr.latexlexer import LaTeXLexer
 from ._antlr.latexparser import LaTeXParser
 from .errors import LaTeXParsingError
+from .math import Equivalence
 from antlr4.error import ErrorListener
 from antlr4 import InputStream, CommonTokenStream
 import sympy
@@ -114,6 +115,10 @@ def convert_relation(rel):
         return sympy.Eq(lh, rh, evaluate=False)
     elif rel.NEQ():
         return sympy.Ne(lh, rh, evaluate=False)
+    elif rel.EQUIV():
+        return Equivalence(lh, rh, evaluate=False)
+    else:
+        raise LaTeXParsingError("Unexpected branch in `convert_relation`.")
 
 
 def convert_expr(expr):

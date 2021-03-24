@@ -11,6 +11,7 @@ from .constants import (
 from .parse_custom import parse_custom_math
 from .parse_latex_antlr import parse_latex
 from .errors import LaTeXParsingError
+from .math import Equivalence
 import sympy
 import glob
 import os
@@ -119,19 +120,35 @@ def parse_equation_numerical(expr, options, output):
         # TODO! Implement inequalities
         warnings.warn("Branch not yet implemented.")
         output["num"] = QEDINDET
+        return output
 
 
-def parse_equation(expr, options, output):
-    if options["numerical"] == "yes":
+def parse_equation(expr, options, variables, output):
+
+    if isinstance(expr, Equivalence):
+
+        # This is a definition. No tests to be performed.
+        variables[expr.lhs] = expr.rhs
+        output["ana"] = QEDNA
+        output["num"] = QEDNA
+
+    elif options["numerical"] == "yes":
+
+        # Analytical evaluation disabled
         output["ana"] = QEDNA
         output = parse_equation_numerical(expr, options, output)
+
     else:
+
+        # Attempt analytical evaluation
         output = parse_equation_analytical(expr, options, output)
         if (output["ana"] != QEDPASS) and (options["numerical"] == "fallback"):
+            # Fall back to numerical evaluation
             output = parse_equation_numerical(expr, options, output)
         else:
             output["num"] = QEDNA
-    return output
+
+    return variables, output
 
 
 def parse_options(options):
@@ -178,28 +195,39 @@ def parse_options(options):
 def get_badge(output):
     # Get badge color
     if (output["ana"] == QEDPASS) or (output["num"] == QEDPASS):
+        # Test passed
         color = "qedGreen"
+        symbol = r"$\blacksquare$"
     elif (output["ana"] in [QEDFAIL, QEDERROR]) or (
         output["num"] in [QEDFAIL, QEDERROR]
     ):
+        # Test failed or errored
         color = "qedRed"
+        symbol = r"$\blacksquare$"
+    elif (output["ana"] == QEDNA) and (output["num"] == QEDNA):
+        # This is a definition
+        color = "qedGreen"
+        symbol = r"$\equiv$"
     else:
+        # Indeterminate result
         color = "qedYellow"
+        symbol = r"$\blacksquare$"
 
     # Get the url
     query_string = urlencode(output)
     url = "{}?{}".format(QEDWEBSITE, query_string)
 
-    return r"\href{{{url}}}{{\color{{{color}}}\faSquare}}".format(
-        color=color, url=url
+    return r"\href{{{url}}}{{\color{{{color}}}{symbol}}}".format(
+        color=color, url=url, symbol=symbol
     )
 
 
 def parse_equations(path="."):
-    texfiles = glob.glob(
-        os.path.join(path, QEDQEDTEXFILES.format(qedCounter="*"))
+    texfiles = sorted(
+        glob.glob(os.path.join(path, QEDQEDTEXFILES.format(qedCounter="*")))
     )
     custom_math = parse_custom_math(path=path)
+    variables = {}
     print("[QED] Parsing equations...")
     for texfile in tqdm(texfiles):
 
@@ -255,8 +283,14 @@ def parse_equations(path="."):
             output["num"] = QEDNA
         else:
             output["sym"] = expr
+
+            # Plug in global variables
+            expr = expr.subs(variables)
+
             # Parse the SymPy expression into T/F
-            output = parse_equation(expr, options, output)
+            variables, output = parse_equation(
+                expr, options, variables, output
+            )
 
         # Get the status badge
         badge = get_badge(output)

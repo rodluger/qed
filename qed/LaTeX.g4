@@ -142,6 +142,8 @@ NUMBER:
 	| DIGIT* (',' DIGIT DIGIT DIGIT)* '.' DIGIT+;
 
 EQUAL: (('&' WS_CHAR*?)? '=') | ('=' (WS_CHAR*? '&')?);
+EQUIV: (('&' WS_CHAR*?)? '\\equiv' ('*')?)
+	| ('\\equiv' ('*')? (WS_CHAR*? '&')?);
 NEQ: '\\neq';
 
 LT: '<';
@@ -161,7 +163,7 @@ SYMBOL: '\\' [a-zA-Z]+;
 math: relation unknown;
 
 relation:
-	relation (EQUAL | LT | LTE | GT | GTE | NEQ) relation
+	relation (EQUAL | EQUIV | LT | LTE | GT | GTE | NEQ) relation
 	| expr;
 
 equality: expr EQUAL expr;

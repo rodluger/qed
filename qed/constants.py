@@ -19,10 +19,14 @@ QEDDIRS = [".qed", os.path.join(".qed", "qed")]
 QEDSEPARATORS = ["|", ",", ";"]
 
 # Built-in defs
-QEDBUILTINS = {r"\dd": "d"}
+QEDBUILTINS = {r"\dd": "d", r"\equiv*": "="}
 
 # Console web address
 QEDWEBSITE = "https://luger.dev/qed"
+
+# TODO: Remove in production
+if bool(int(os.getenv("QEDDEBUG", 0))):
+    QEDWEBSITE = "file:///Users/rluger/src/qed/index.html"
 
 # Status badge codes
 QEDPASS = 0
