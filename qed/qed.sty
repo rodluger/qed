@@ -13,6 +13,7 @@
 \RequirePackage{fontawesome} % custom symbols
 \RequirePackage{keyval} % keyword arguments to macros
 \RequirePackage[hidelinks]{hyperref} % url links
+\RequirePackage{stringstrings} % for user-defined command names
 
 % Package options
 \DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
@@ -177,7 +178,11 @@
 \newcommand\qedFunctionDescription\qedDefaultFunctionDescription
 \newcommand\qedFunctionArguments\qedDefaultFunctionArguments
 \newcommand\qedFunctionSympy\qedDefaultFunctionSympy
-\define@key{qedFunctionKeys}{name}{\newcommand\qedFunctionName{#1}}
+\define@key{qedFunctionKeys}{name}{%
+    \edef\sv@name{\expandafter\@gobble\detokenize{#1}}%
+    \noblanks[q]{\sv@name}%
+    \newcommand\qedFunctionName{\thestring}%
+}
 \define@key{qedFunctionKeys}{latex}{\newcommand\qedFunctionLatex{\unexpanded\expandafter{\ensuremath{#1}}}}
 \define@key{qedFunctionKeys}{desc}{\renewcommand\qedFunctionDescription{#1}}
 \define@key{qedFunctionKeys}{args}{\renewcommand\qedFunctionArguments{#1}}
@@ -211,7 +216,11 @@
 \newcommand\qedDefaultSymbolSympy{{sympy.Integer(0)}}
 \newcommand\qedSymbolDescription\qedDefaultSymbolDescription
 \newcommand\qedSymbolSympy\qedDefaultSymbolSympy
-\define@key{qedSymbolKeys}{name}{\newcommand\qedSymbolName{#1}}
+\define@key{qedSymbolKeys}{name}{%
+    \edef\sv@name{\expandafter\@gobble\detokenize{#1}}%
+    \noblanks[q]{\sv@name}%
+    \newcommand\qedSymbolName{\thestring}%
+}
 \define@key{qedSymbolKeys}{latex}{\newcommand\qedSymbolLatex{\unexpanded\expandafter{\ensuremath{#1}}}}
 \define@key{qedSymbolKeys}{desc}{\renewcommand\qedSymbolDescription{#1}}
 \define@key{qedSymbolKeys}{sympy}{\renewcommand\qedSymbolSympy{#1}}
@@ -245,33 +254,33 @@
 
 % Standard symbols
 \qedsymbol{
-      name={pi},
+      name={\pi},
       desc={Pi},
       sympy={sympy.pi}
 }
 
 \qedsymbol{
-      name={euler},
+      name={\euler},
       latex={e},
       desc={Euler's number},
       sympy={sympy.E}
 }
 
 \qedsymbol{
-      name={imag},
+      name={\imag},
       latex={i},
       desc={Imaginary unit},
       sympy={sympy.I}
 }
 
 \qedsymbol{
-      name={infty},
+      name={\infty},
       desc={Infinity},
       sympy={sympy.oo}
 }
 
 \qedsymbol{
-      name={cinfty},
+      name={\cinfty},
       latex={\tilde{\infty}},
       desc={Complex infinity},
       sympy={sympy.zoo}
@@ -281,7 +290,7 @@
 \ifdefined\qedOptionElliptic%
 
   \qedfunction{
-    name={ellipk},
+    name={\ellipk},
     latex={K},
     desc={Complete elliptic integral of the first kind},
     args={k^2},
@@ -289,7 +298,7 @@
   }
 
   \qedfunction{
-      name={ellipe},
+      name={\ellipe},
       latex={E},
       desc={Complete elliptic integral of the second kind},
       args={k^2},
@@ -297,7 +306,7 @@
   }
 
   \qedfunction{
-      name={ellipe},
+      name={\ellipe},
       latex={E},
       desc={Incomplete elliptic integral of the second kind (trigonometric form)},
       args={phi | k^2},
@@ -305,7 +314,7 @@
   }
 
   \qedfunction{
-      name={ellipe},
+      name={\ellipe},
       latex={E},
       desc={Incomplete elliptic integral of the second kind (trigonometric form)},
       args={phi , k},
@@ -313,7 +322,7 @@
   }
 
   \qedfunction{
-      name={ellipe},
+      name={\ellipe},
       latex={E},
       desc={Incomplete elliptic integral of the second kind (Legendre normal form)},
       args={x ; k},
