@@ -1,13 +1,4 @@
-from .constants import (
-    QEDQEDTEXFILES,
-    QEDWEBSITE,
-    QEDPASS,
-    QEDFAIL,
-    QEDERROR,
-    QEDINDET,
-    QEDNA,
-    QEDBUILTINS,
-)
+from .constants import *
 from .parse_custom import parse_custom_math
 from .parse_latex_antlr import parse_latex
 from .errors import LaTeXParsingError
@@ -31,14 +22,17 @@ def parse_equation_analytical(expr, options, output):
     except Exception as e:
         warnings.warn(str(e))
         output["ana"] = QEDERROR
-        output["aer"] = str(e)
+        output["ams"] = str(e)
     else:
         if (type(value) is BooleanTrue) or (value is True):
             output["ana"] = QEDPASS
+            output["ams"] = QEDMSGANATRUE
         elif (type(value) is BooleanFalse) or (value is False):
             output["ana"] = QEDFAIL
+            output["ams"] = QEDMSGANAFALSE
         else:
             output["ana"] = QEDINDET
+            output["ams"] = QEDMSGINDET
     return output
 
 
@@ -91,7 +85,7 @@ def parse_equation_numerical(expr, options, output):
                 # Fail fast
                 warnings.warn(str(e))
                 output["num"] = QEDERROR
-                output["ner"] = str(e)
+                output["nms"] = str(e)
                 return output
             else:
                 if (type(value) is BooleanTrue) or (value is True):
@@ -100,6 +94,8 @@ def parse_equation_numerical(expr, options, output):
                 elif (type(value) is BooleanFalse) or (value is False):
                     # Fail fast
                     output["num"] = QEDFAIL
+                    # TODO: More details
+                    output["nms"] = QEDMSGNUMFALSE
                     return output
                 else:
                     # This branch usually occurs when the user
@@ -113,6 +109,8 @@ def parse_equation_numerical(expr, options, output):
 
         # All checks passed
         output["num"] = QEDPASS
+        # TODO: More details
+        output["nms"] = QEDMSGNUMTRUE
         return output
 
     else:
@@ -120,6 +118,7 @@ def parse_equation_numerical(expr, options, output):
         # TODO! Implement inequalities
         warnings.warn("Branch not yet implemented.")
         output["num"] = QEDINDET
+        output["nms"] = QEDMSGNOTIMP
         return output
 
 
@@ -131,11 +130,14 @@ def parse_equation(expr, options, variables, output):
         variables[expr.lhs] = expr.rhs
         output["ana"] = QEDNA
         output["num"] = QEDNA
+        output["ams"] = QEDMSGDEF
+        output["nms"] = QEDMSGDEF
 
     elif options["numerical"] == "yes":
 
         # Analytical evaluation disabled
         output["ana"] = QEDNA
+        output["ams"] = QEDMSGANADIS
         output = parse_equation_numerical(expr, options, output)
 
     else:
@@ -147,6 +149,10 @@ def parse_equation(expr, options, variables, output):
             output = parse_equation_numerical(expr, options, output)
         else:
             output["num"] = QEDNA
+            if output["ana"] == QEDPASS:
+                output["nms"] = QEDMSGNONEED
+            else:
+                output["nms"] = QEDMSGNUMDIS
 
     return variables, output
 
@@ -279,7 +285,7 @@ def parse_equations(path="."):
         except LaTeXParsingError as e:
             warnings.warn(str(e))
             output["ana"] = QEDERROR
-            output["aer"] = str(e)
+            output["ams"] = str(e)
             output["num"] = QEDNA
         else:
             output["sym"] = expr

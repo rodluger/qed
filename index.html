@@ -69,7 +69,8 @@
 
     function getURLParameter(name) {
         var res = decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
-        res = res.replace("%3D", "=");
+        if (res != null)
+            res = res.replace("%3D", "=");
         return res;
     }
 
@@ -96,6 +97,44 @@
         window.open("https://gamma.sympy.org/input/?i=" + sympy);
     }
 
+    function parseMessage(msg) {
+        // Defined in `qed/constants.py`
+        var QEDMSGANATRUE = 0;
+        var QEDMSGANAFALSE = 1;
+        var QEDMSGINDET = 2;
+        var QEDMSGNUMFALSE = 3;
+        var QEDMSGNUMTRUE = 4;
+        var QEDMSGNOTIMP = 5;
+        var QEDMSGDEF = 6;
+        var QEDMSGNUMDIS = 7;
+        var QEDMSGANADIS = 8;
+        var QEDMSGNONEED = 9;
+        if (msg == null)
+            return "";
+        else if (msg == QEDMSGANATRUE) {
+            return "The expression evaluated to True.";
+        } else if (msg == QEDMSGANAFALSE) {
+            return "The expression evaluated to False.";
+        } else if (msg == QEDMSGINDET) {
+            return "The expression could not be checked analytically.";
+        } else if (msg == QEDMSGNUMFALSE) {
+            return "At least one numerical check evaluated to False.";
+        } else if (msg == QEDMSGNUMTRUE) {
+            return "All numerical checks passed.";
+        } else if (msg == QEDMSGNOTIMP) {
+            return "Check for this expression not yet implemented.";
+        } else if (msg == QEDMSGDEF) {
+            return "The expression is a definition. No tests were performed.";
+        } else if (msg == QEDMSGNUMDIS) {
+            return "User disabled numerical checks.";
+        } else if (msg == QEDMSGANADIS) {
+            return "User disabled analytical checks.";
+        } else if (msg == QEDMSGNONEED) {
+            return "Not performed because analytical check passed.";
+        }
+        return msg;
+    }
+
     $(document).ready(function () {
 
         var eqno = getURLParameter("eqn");
@@ -104,11 +143,15 @@
         var sympy = getURLParameter("sym");
         var analytical = getURLParameter("ana");
         var numerical = getURLParameter("num");
+        var msg_analytical = parseMessage(getURLParameter("ams"));
+        var msg_numerical = parseMessage(getURLParameter("nms"));
 
         document.getElementById("latex").innerHTML = input;
         document.getElementById("rendered").innerHTML = "\\[" + latex + "\\]";
         document.getElementById("sympy").innerHTML = sympy;
 
+        document.getElementById("ana-msg").innerHTML = msg_analytical;
+        document.getElementById("num-msg").innerHTML = msg_numerical;
 
         if (analytical == 0) {
             document.getElementById("ana-passed").style.display = "inherit";
@@ -241,6 +284,9 @@
                         Unknown
                     </h6>
                     </p>
+                    <p>
+                    <div id="ana-msg" class="w3-opacity"></div>
+                    </p>
                     <hr>
                 </div>
 
@@ -272,6 +318,9 @@
                         <i class="fa fa-question fa-fw w3-margin-right"></i>
                         Unknown
                     </h6>
+                    <p>
+                    <div id="num-msg" class="w3-opacity"></div>
+                    </p>
                     </p>
                 </div>
 
