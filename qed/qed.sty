@@ -10,6 +10,7 @@
 \RequirePackage{stringstrings} % for user-defined command names
 \RequirePackage{suffix} % allows definition of starred commmands
 \RequirePackage{amssymb} % QED symbol
+\RequirePackage{xspace} % Spaces after commands w/ no args
 
 % Package options
 \DeclareOption{elliptic}{\def\qedOptionElliptic{1}}
@@ -45,33 +46,21 @@
 \newcounter{qedCounter}
 
 % Keyword arguments to the `qed' environment
-\newcommand\qedDefaultQedNumerical{fallback}
 \newcommand\qedDefaultQedTimeout{0}
-\newcommand\qedDefaultQedVariables{}
 \newcommand\qedDefaultQedATol{1e-12}
 \newcommand\qedDefaultQedRTol{1e-12}
 \newcommand\qedDefaultQedSeed{0}
 \newcommand\qedDefaultQedNTests{10}
-\newcommand\qedDefaultQedLow{0.0}
-\newcommand\qedDefaultQedHigh{1.0}
-\newcommand\qedQedNumerical\qedDefaultQedNumerical
 \newcommand\qedQedTimeout\qedDefaultQedTimeout
-\newcommand\qedQedVariables\qedDefaultQedVariables
 \newcommand\qedQedATol\qedDefaultQedATol
 \newcommand\qedQedRTol\qedDefaultQedRTol
 \newcommand\qedQedSeed\qedDefaultQedSeed
 \newcommand\qedQedNTests\qedDefaultQedNTests
-\newcommand\qedQedLow\qedDefaultQedLow
-\newcommand\qedQedHigh\qedDefaultQedHigh
-\define@key{qedQedKeys}{numerical}{\renewcommand\qedQedNumerical{#1}}
 \define@key{qedQedKeys}{timeout}{\renewcommand\qedQedTimeout{#1}}
-\define@key{qedQedKeys}{variables}{\renewcommand\qedQedVariables{#1}}
 \define@key{qedQedKeys}{atol}{\renewcommand\qedQedATol{#1}}
 \define@key{qedQedKeys}{rtol}{\renewcommand\qedQedRTol{#1}}
 \define@key{qedQedKeys}{seed}{\renewcommand\qedQedSeed{#1}}
 \define@key{qedQedKeys}{ntests}{\renewcommand\qedQedNTests{#1}}
-\define@key{qedQedKeys}{low}{\renewcommand\qedQedLow{#1}}
-\define@key{qedQedKeys}{high}{\renewcommand\qedQedHigh{#1}}
 
 % Hack for the `qed` environment as per https://tex.stackexchange.com/a/9040
 % See below for details
@@ -103,15 +92,11 @@
     % Increment the `qed' counter
     \refstepcounter{qedCounter}%
     % Reset keys to defaults
-    \renewcommand\qedQedNumerical\qedDefaultQedNumerical%
     \renewcommand\qedQedTimeout\qedDefaultQTimeout%
-    \renewcommand\qedQedVariables\qedDefaultQedVariables%
     \renewcommand\qedQedATol\qedDefaultQedATol%
     \renewcommand\qedQedRTol\qedDefaultQedRTol%
     \renewcommand\qedQedSeed\qedDefaultQedSeed%
     \renewcommand\qedQedNTests\qedDefaultQedNTests%
-    \renewcommand\qedQedLow\qedDefaultQedLow%
-    \renewcommand\qedQedHigh\qedDefaultQedHigh%
 }
 
 % Version of the `qed' environment *with* keywords provided
@@ -123,8 +108,6 @@
     \immediate\write\qedQedOptionsFile{%
       {%
         ^^J% (newline char)
-        "numerical": "\qedQedNumerical",%
-        ^^J%
         "timeout": "\qedQedTimeout",%
         ^^J%
         "atol": "\qedQedATol",%
@@ -133,13 +116,7 @@
         ^^J%
         "seed": "\qedQedSeed",%
         ^^J%
-        "ntests": "\qedQedNTests",%
-        ^^J%
-        "low": "\qedQedLow",%
-        ^^J%
-        "high": "\qedQedHigh",%
-        ^^J%
-        "variables": {\qedQedVariables}%
+        "ntests": "\qedQedNTests"%
         ^^J%
       }%
     }%
@@ -246,6 +223,7 @@
 }
 
 % Built-in definitions
+\newcommand{\QED}{\textsf{qed}\xspace}
 \newcommand{\dd}{\mathrm{d}} % differential operator
 \WithSuffix\newcommand\equiv*{=} % equivalence displayed as equality
 

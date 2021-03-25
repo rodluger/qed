@@ -56,6 +56,44 @@
         .test-unknown {
             color: #757575 !important;
         }
+
+        .test-info {
+            margin-top: 3px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 200px;
+            font-size: 10pt;
+        }
+
+        th {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding-left: 65px;
+        }
+
+        .test-details {
+            font-size: 10pt;
+            font-weight: bold;
+            line-height: 2.5em;
+            padding-left: 43px;
+        }
+
+        .test-number {
+            padding-left: 5px;
+        }
+
+        .test-heading {
+            margin-bottom: 5px;
+        }
     </style>
 
     <link rel="stylesheet" href="static/highlight/styles/default.css">
@@ -135,8 +173,41 @@
         return msg;
     }
 
+    function parseSciNot(val) {
+        var amp_and_exp = val.split(/e/);
+        var amp = amp_and_exp[0];
+        var exp = parseInt(amp_and_exp[1]);
+        if (exp == 0)
+            return "\\(" + amp + "\\)";
+        else
+            return "\\(" + amp + "\\times 10^{" + exp + "}" + "\\)";
+    }
+
+    function generateTableHead(table, data) {
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+        for (let key of data) {
+            let th = document.createElement("th");
+            let text = document.createTextNode(key);
+            th.appendChild(text);
+            row.appendChild(th);
+        }
+    }
+
+    function generateTable(table, data) {
+        for (let element of data) {
+            let row = table.insertRow();
+            for (key in element) {
+                let cell = row.insertCell();
+                let text = document.createTextNode(element[key]);
+                cell.appendChild(text);
+            }
+        }
+    }
+
     $(document).ready(function () {
 
+        // Parse the URI parameters
         var eqno = getURLParameter("eqn");
         var input = getURLParameter("inp");
         var latex = getURLParameter("lat");
@@ -146,13 +217,96 @@
         var msg_analytical = parseMessage(getURLParameter("ams"));
         var msg_numerical = parseMessage(getURLParameter("nms"));
 
+        // Get numerical test results
+        for (var n = 0; n <= 99; n++) {
+
+            // Get test parameters
+            var nstr = ("n0" + n).slice(-3);
+            param = getURLParameter(nstr);
+
+            // Break if we've processed all tests
+            if (param == null) break;
+
+            // Parse the parameters
+            param = param.split(",");
+            var passed = param[0];
+            var diff_re = param[1];
+            var diff_im = param[2];
+            var maxdiff_re = param[3];
+            var maxdiff_im = param[4];
+
+            // Get all the variables for this test
+            var variables_dict = [];
+            for (var v = 0; v <= 99; v++) {
+                var vstr = (("v0" + n).slice(-3) + "0" + v).slice(-5);
+                variable = getURLParameter(vstr);
+                if (variable == null) break;
+                variable = variable.split(",");
+                variables_dict.push({
+                    name: "\\(" + variable[0] + "\\)",
+                    value: parseSciNot(variable[1])
+                });
+            }
+
+            // Create a pass/fail badge
+            var badge = document.createElement("i");
+            var testno = document.createElement("span");
+            if (passed) {
+                badge.className = "fa fa-check fa-fw w3-margin-right test-passed";
+                testno.className = "test-passed test-number";
+            } else {
+                badge.className = "fa fa-times fa-fw w3-margin-right test-failed";
+                testno.className = "test-failed test-number";
+            }
+            testno.innerHTML = "Test #" + (n + 1);
+            var heading_h7 = document.createElement("h7");
+            heading_h7.appendChild(badge);
+            heading_h7.appendChild(testno);
+            var heading = document.createElement("div");
+            heading.className = "test-heading";
+            heading.appendChild(heading_h7);
+
+            // Create div with test details
+            var details_re = document.createElement("div");
+            details_re.className = "w3-opacity test-details";
+            details_re.innerHTML = "<span style='margin-right:5px;'>Difference (Re):</span> " + parseSciNot(diff_re) + " \\(\\,\\stackrel{?}{\\small{\\leq}}\\,\\)  " + parseSciNot(maxdiff_re);
+            var details_im = document.createElement("div");
+            details_im.className = "w3-opacity test-details";
+            details_im.innerHTML = "<span style='margin-right:5px;'>Difference (Im):</span> " + parseSciNot(diff_re) + " \\(\\,\\stackrel{?}{\\small{\\leq}}\\,\\)  " + parseSciNot(maxdiff_re);
+            var details = document.createElement("div");
+            details.appendChild(details_re);
+            details.appendChild(details_im);
+
+            // Create variable table
+            var variables_info = document.createElement("div");
+            variables_info.className = "w3-opacity test-details";
+            variables_info.innerHTML = "Variables:"
+            var variables_table = document.createElement("table");
+            variables_table.className = "w3-opacity";
+            generateTable(variables_table, variables_dict);
+            generateTableHead(variables_table, Object.keys(variables_dict[0]));
+            var variables = document.createElement("div");
+            variables.appendChild(variables_info);
+            variables.appendChild(variables_table);
+
+            // Add the test info to the page
+            var test_div = document.createElement("div");
+            test_div.className = "test-info";
+            test_div.appendChild(heading);
+            test_div.appendChild(details);
+            test_div.appendChild(variables);
+            document.getElementById("num-details").appendChild(test_div);
+
+        }
+
+        // Populate the page
         document.getElementById("latex").innerHTML = input;
         document.getElementById("rendered").innerHTML = "\\[" + latex + "\\]";
         document.getElementById("sympy").innerHTML = sympy;
-
         document.getElementById("ana-msg").innerHTML = msg_analytical;
         document.getElementById("num-msg").innerHTML = msg_numerical;
 
+        // Display analytical check results
         if (analytical == 0) {
             document.getElementById("ana-passed").style.display = "inherit";
         } else if (analytical == 1) {
@@ -167,6 +321,7 @@
             document.getElementById("ana-unknown").style.display = "inherit";
         }
 
+        // Display numerical check results
         if (numerical == 0) {
             document.getElementById("num-passed").style.display = "inherit";
         } else if (numerical == 1) {
@@ -181,6 +336,7 @@
             document.getElementById("num-unknown").style.display = "inherit";
         }
 
+        // Force MathJax to update the displayed math
         MathJax.typeset();
 
     });
@@ -204,7 +360,7 @@
 
                 <!-- Title -->
                 <h2 class="w3-text-grey w3-padding-16">
-                    <i class="fa fa-square fa-fw w3-margin-right w3-xxlarge w3-text-blue"></i>
+                    <i class="fa fa-square fa-fw w3-margin-right w3-xxlarge" style="color:#757575!important;"></i>
                     <span style="color:#757575!important;">qed console</span>
                     <div style="color:#aaaaaa; float:right;">v0.1</div>
                 </h2>
@@ -261,7 +417,7 @@
                     <p>
                     <h6 class="test-passed" id="ana-passed" style="display: none;">
                         <i class="fa fa-check fa-fw w3-margin-right"></i>
-                        Passed
+                        <span>Passed</span>
                     </h6>
                     <h6 class="test-failed" id="ana-failed" style="display: none;">
                         <i class="fa fa-times fa-fw w3-margin-right"></i>
@@ -296,7 +452,7 @@
                     <p>
                     <h6 class="test-passed" id="num-passed" style="display: none;">
                         <i class="fa fa-check fa-fw w3-margin-right"></i>
-                        Passed
+                        <span>Passed</span>
                     </h6>
                     <h6 class="test-failed" id="num-failed" style="display: none;">
                         <i class="fa fa-times fa-fw w3-margin-right"></i>
@@ -322,6 +478,9 @@
                     <div id="num-msg" class="w3-opacity"></div>
                     </p>
                     </p>
+                    <div id="num-details" style="padding-top:10px;">
+
+                    </div>
                 </div>
 
                 <!--

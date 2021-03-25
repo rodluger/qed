@@ -14,6 +14,7 @@ import numpy as np
 from numpy.random import RandomState
 from urllib.parse import urlencode
 import re
+import itertools
 
 
 def parse_equation_analytical(expr, options, output):
@@ -36,81 +37,92 @@ def parse_equation_analytical(expr, options, output):
     return output
 
 
-def parse_equation_numerical(expr, options, output):
+def parse_equation_numerical(expr, options, variables, output):
     """
     TODO: Implement more granular reporting, with per-check statuses.
           Also report the actual value of the differences.
 
     """
     # Get the user options
-    variables = options["variables"]
     atol = options["atol"]
     rtol = options["rtol"]
     seed = options["seed"]
-    ntests = options["ntests"]
-    low = options["low"]
-    high = options["high"]
 
-    # Determine variables automatically?
-    if len(variables) == 0:
-        rng = RandomState(seed)
-        symbols = sorted(list(expr.free_symbols), key=lambda x: str(x))
-        variables = []
-        for k in range(ntests):
-            dict_k = {}
-            for symbol in symbols:
-                dict_k[symbol] = rng.uniform(low=low, high=high)
-            variables.append(dict_k)
+    # All the free symbols in the expression
+    symbols = sorted([str(symbol) for symbol in expr.free_symbols])
+
+    #
+    ntests = options["ntests"]
+    rng = RandomState(seed)
+    subs = [{} for n in range(ntests)]
+    for symbol in symbols:
+        for n in range(ntests):
+            sgn = -1 if np.random.random() < 0.5 else 1
+            subs[n][symbol] = sgn * np.exp(rng.uniform(low=-5, high=5))
 
     # Substitute and evaluate
-    value = True
+    results = [{} for n in range(ntests)]
     if isinstance(expr, sympy.Equality):
 
         # Check the expression for every value of each of the variables
-        for k in range(len(variables)):
-            lhs = expr.lhs.subs(variables[k], simultaneous=True)
-            rhs = expr.rhs.subs(variables[k], simultaneous=True)
+        for n in range(ntests):
 
-            # Check the real and imaginary parts separately
             try:
-                value = value and sympy.LessThan(
-                    sympy.Abs(sympy.re(lhs - rhs)),
-                    atol + rtol * sympy.Abs(sympy.re(rhs)),
-                )
-                value = value and sympy.LessThan(
-                    sympy.Abs(sympy.im(lhs - rhs)),
-                    atol + rtol * sympy.Abs(sympy.im(rhs)),
-                )
+
+                # Plug in values
+                lhs = expr.lhs.subs(subs[n], simultaneous=True)
+                rhs = expr.rhs.subs(subs[n], simultaneous=True)
+
+                # Check the real and imaginary parts separately
+                lhs_re = float(sympy.re(lhs).evalf())
+                lhs_im = float(sympy.im(lhs).evalf())
+                rhs_re = float(sympy.re(rhs).evalf())
+                rhs_im = float(sympy.im(rhs).evalf())
+                diff_re = np.abs(lhs_re - rhs_re)
+                diff_im = np.abs(lhs_im - rhs_im)
+
+                # Maximum allowed difference (same as in `np.allclose`)
+                maxdiff_re = atol + rtol * np.abs(rhs_re)
+                maxdiff_im = atol + rtol * np.abs(rhs_im)
+
+                # Check it
+                passed = (diff_re <= maxdiff_re) and (diff_im <= maxdiff_im)
+                results[n] = {
+                    "passed": int(passed),
+                    "variables": subs[n],
+                    "diff_re": diff_re,
+                    "diff_im": diff_im,
+                    "maxdiff_re": maxdiff_re,
+                    "maxdiff_im": maxdiff_im,
+                }
+
             except Exception as e:
                 # Fail fast
                 warnings.warn(str(e))
                 output["num"] = QEDERROR
                 output["nms"] = str(e)
                 return output
-            else:
-                if (type(value) is BooleanTrue) or (value is True):
-                    # On to the next check
-                    continue
-                elif (type(value) is BooleanFalse) or (value is False):
-                    # Fail fast
-                    output["num"] = QEDFAIL
-                    # TODO: More details
-                    output["nms"] = QEDMSGNUMFALSE
-                    return output
-                else:
-                    # This branch usually occurs when the user
-                    # provided values for only *some* of the
-                    # free variables. Let's re-run the
-                    # evaluation with random values for the remaining
-                    # variables.
-                    new_options = options.copy()
-                    new_options["variables"] = []
-                    return parse_equation_numerical(expr, new_options, output)
 
-        # All checks passed
-        output["num"] = QEDPASS
-        # TODO: More details
-        output["nms"] = QEDMSGNUMTRUE
+        # Pass/fail?
+        if np.all([result["passed"] for result in results]):
+            output["num"] = QEDPASS
+            output["nms"] = QEDMSGNUMTRUE
+        else:
+            output["num"] = QEDFAIL
+            output["nms"] = QEDMSGNUMFALSE
+
+        # Save the info from each test
+        for n in range(ntests):
+            output[
+                "n{:02d}".format(n)
+            ] = "{passed:1d},{diff_re:.3e},{diff_im:.3e},{maxdiff_re:.3e},{maxdiff_im:.3e}".format(
+                **results[n]
+            )
+            for k, variable in enumerate(results[n]["variables"].keys()):
+                output["v{:02d}{:02d}".format(n, k)] = "{:s},{:.3e}".format(
+                    variable, results[n]["variables"][variable]
+                )
+
         return output
 
     else:
@@ -124,37 +136,21 @@ def parse_equation_numerical(expr, options, output):
 
 def parse_equation(expr, options, variables, output):
 
-    if isinstance(expr, Equivalence):
+    # Attempt analytical evaluation
+    output = parse_equation_analytical(expr, options, output)
 
-        # This is a definition. No tests to be performed.
-        variables[expr.lhs] = expr.rhs
-        output["ana"] = QEDNA
+    if output["ana"] == QEDPASS:
+
+        # No need to evaluate things numerically
         output["num"] = QEDNA
-        output["ams"] = QEDMSGDEF
-        output["nms"] = QEDMSGDEF
-
-    elif options["numerical"] == "yes":
-
-        # Analytical evaluation disabled
-        output["ana"] = QEDNA
-        output["ams"] = QEDMSGANADIS
-        output = parse_equation_numerical(expr, options, output)
+        output["nms"] = QEDMSGNONEED
 
     else:
 
-        # Attempt analytical evaluation
-        output = parse_equation_analytical(expr, options, output)
-        if (output["ana"] != QEDPASS) and (options["numerical"] == "fallback"):
-            # Fall back to numerical evaluation
-            output = parse_equation_numerical(expr, options, output)
-        else:
-            output["num"] = QEDNA
-            if output["ana"] == QEDPASS:
-                output["nms"] = QEDMSGNONEED
-            else:
-                output["nms"] = QEDMSGNUMDIS
+        # Fall back to numerical evaluation
+        output = parse_equation_numerical(expr, options, variables, output)
 
-    return variables, output
+    return output
 
 
 def parse_options(options):
@@ -164,37 +160,6 @@ def parse_options(options):
     options["rtol"] = float(options["rtol"])
     options["seed"] = int(options["seed"])
     options["ntests"] = int(options["ntests"])
-    options["low"] = float(options["low"])
-    options["high"] = float(options["high"])
-
-    #
-    assert options["numerical"] in [
-        "yes",
-        "no",
-        "fallback",
-    ], "Option `numerical` must be one of `yes`, `no`, or `fallback`."
-
-    # Parse the variable values into substitution dicts
-    sz = None
-    for key, value in options["variables"].items():
-        if type(value) is str:
-            # Attempt to evaluate the expression
-            value = eval(value)
-        value = np.atleast_1d(value)
-        options["variables"][key] = value
-        if sz is not None:
-            assert len(value) == sz, "Mismatch in variable array sizes."
-        sz = len(value)
-    if sz is None:
-        sz = 0
-    variables = []
-    for k in range(sz):
-        dict_k = {}
-        for key, value in options["variables"].items():
-            dict_k[key] = value[k]
-        variables.append(dict_k)
-    options["variables"] = variables
-
     return options
 
 
@@ -233,6 +198,7 @@ def parse_equations(path="."):
         glob.glob(os.path.join(path, QEDQEDTEXFILES.format(qedCounter="*")))
     )
     custom_math = parse_custom_math(path=path)
+    subs = {}
     variables = {}
     print("[QED] Parsing equations...")
     for texfile in tqdm(texfiles):
@@ -290,13 +256,22 @@ def parse_equations(path="."):
         else:
             output["sym"] = expr
 
-            # Plug in global variables
-            expr = expr.subs(variables)
+            # Plug in global substitutions
+            expr = expr.subs(subs)
 
-            # Parse the SymPy expression into T/F
-            variables, output = parse_equation(
-                expr, options, variables, output
-            )
+            if isinstance(expr, Equivalence):
+
+                # This is a definition. No tests to be performed.
+                subs[expr.lhs] = expr.rhs
+                output["ana"] = QEDNA
+                output["num"] = QEDNA
+                output["ams"] = QEDMSGDEF
+                output["nms"] = QEDMSGDEF
+
+            else:
+
+                # Parse the SymPy expression into T/F
+                output = parse_equation(expr, options, variables, output)
 
         # Get the status badge
         badge = get_badge(output)

@@ -8,66 +8,14 @@
 The Legendre relation is a relation among the elliptic integrals of the first
 ($\ellipk$) and second ($\ellipe$) kinds, given by
 %
-\begin{align*}
+\begin{qed}
     \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
     - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{align*}
+\end{qed}
 %
 Unfortunately, \textsf{sympy} doesn't know how to automatically simplify it,
-so \textsf{qed} cannot analytically determine its validity:
-%
-\begin{qed}[numerical=no]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-Notice that in the above expression we passed \texttt{numerical=no} to the
-\texttt{qed} environment. If instead we pass \texttt{numerical=fallback},
-which is the default, we find that \textsf{qed} correctly validates the
-equation:
-%
-\begin{qed}[numerical=fallback]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-By default, \textsf{qed} randomizes values of all the free variables in the
-range $[\qedDefaultQedLow, \qedDefaultQedHigh]$ and evaluates the expression
-\texttt{\qedDefaultQedNTests} times. This is not always what we want, so we can
-provide custom values for the \texttt{low}, \texttt{high}, \texttt{ntests}, and
-randomizer \texttt{seed} parameters:
-%
-\begin{qed}[seed=0, low=-10.0, high=10.0, ntests=100]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-Alternatively, we can specify the values of the variables directly using the
-\texttt{variables} keyword, whose value should be a JSON-like dictionary with
-keys for each free variable in the expression:
-%
-\begin{qed}[variables={"k": 0.5}]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-Arrays of values may also be provided:
-%
-\begin{qed}[variables={"k": [0.1, 0.2, 0.3, 0.4, 0.5]}]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-Note that if there are multiple free variables, all arrays must have the same
-length. Finally, simple \textsf{Python} expressions are also allowed (these
-should be provided as strings):
-%
-\begin{qed}[variables={"k": "np.linspace(0.01, 0.99, 100)"}]
-    \ellipe(k^2) \ellipk(1-k^2) + \ellipe(1 - k^2) \ellipk(k^2)
-    - \ellipk(k^2) \ellipk(1 - k^2) = \frac{\pi}{2}
-\end{qed}
-%
-Note that only the \textsf{numpy} and \textsf{sympy} packages are guaranteed to
-be imported into the namespace.
+so \QED cannot analytically determine its validity. Nevertheless,
+when we typeset it, we still got a passing badge. That's because \QED falls
+back to numerical evaluation automatically.
 
 \end{document}
