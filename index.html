@@ -58,7 +58,7 @@
         }
 
         .test-info {
-            margin-top: 3px;
+            margin-top: 30px;
             margin-bottom: 30px;
         }
 
@@ -67,11 +67,7 @@
             table-layout: fixed;
             width: 200px;
             font-size: 10pt;
-        }
-
-        th {
-            padding-top: 10px;
-            padding-bottom: 10px;
+            margin-top: 10px;
         }
 
         th,
@@ -93,6 +89,47 @@
 
         .test-heading {
             margin-bottom: 5px;
+        }
+
+        .collapsible {
+            background-color: white;
+            color: black;
+            cursor: pointer;
+            padding: 4px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active,
+        .collapsible:hover {
+            opacity: 0.8;
+        }
+
+        .collapsible:before {
+            content: '\002B';
+            color: black;
+            font-weight: bold;
+            float: left;
+            margin-right: 28px;
+        }
+
+        .active:before {
+            content: "\2212";
+        }
+
+        .collapsible-content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: white;
+        }
+
+        .test-hr {
+            border-top: 1px solid #dddddd;
         }
     </style>
 
@@ -175,23 +212,12 @@
 
     function parseSciNot(val) {
         var amp_and_exp = val.split(/e/);
-        var amp = amp_and_exp[0];
+        var amp = parseFloat(amp_and_exp[0]);
         var exp = parseInt(amp_and_exp[1]);
-        if (exp == 0)
-            return "\\(" + amp + "\\)";
+        if (Math.abs(exp) <= 3)
+            return "\\(" + (amp * Math.pow(10, exp)).toFixed(4 - exp) + "\\)";
         else
             return "\\(" + amp + "\\times 10^{" + exp + "}" + "\\)";
-    }
-
-    function generateTableHead(table, data) {
-        let thead = table.createTHead();
-        let row = thead.insertRow();
-        for (let key of data) {
-            let th = document.createElement("th");
-            let text = document.createTextNode(key);
-            th.appendChild(text);
-            row.appendChild(th);
-        }
     }
 
     function generateTable(table, data) {
@@ -267,13 +293,19 @@
             heading.appendChild(heading_h7);
 
             // Create div with test details
+            var hrdiv = document.createElement("div");
+            hrdiv.className = "test-details";
+            hr = document.createElement("hr");
+            hr.className = "test-hr";
+            hrdiv.appendChild(hr);
             var details_re = document.createElement("div");
             details_re.className = "w3-opacity test-details";
             details_re.innerHTML = "<span style='margin-right:5px;'>Difference (Re):</span> " + parseSciNot(diff_re) + " \\(\\,\\stackrel{?}{\\small{\\leq}}\\,\\)  " + parseSciNot(maxdiff_re);
             var details_im = document.createElement("div");
             details_im.className = "w3-opacity test-details";
-            details_im.innerHTML = "<span style='margin-right:5px;'>Difference (Im):</span> " + parseSciNot(diff_re) + " \\(\\,\\stackrel{?}{\\small{\\leq}}\\,\\)  " + parseSciNot(maxdiff_re);
+            details_im.innerHTML = "<span style='margin-right:5px;'>Difference (Im):</span> " + parseSciNot(diff_im) + " \\(\\,\\stackrel{?}{\\small{\\leq}}\\,\\)  " + parseSciNot(maxdiff_im);
             var details = document.createElement("div");
+            details.appendChild(hrdiv);
             details.appendChild(details_re);
             details.appendChild(details_im);
 
@@ -284,7 +316,6 @@
             var variables_table = document.createElement("table");
             variables_table.className = "w3-opacity";
             generateTable(variables_table, variables_dict);
-            generateTableHead(variables_table, Object.keys(variables_dict[0]));
             var variables = document.createElement("div");
             variables.appendChild(variables_info);
             variables.appendChild(variables_table);
@@ -336,12 +367,28 @@
             document.getElementById("num-unknown").style.display = "inherit";
         }
 
+        // Collapsible test results
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+
         // Force MathJax to update the displayed math
         MathJax.typeset();
 
     });
 
 </script>
+
 
 
 <!-- Page Container -->
@@ -478,9 +525,9 @@
                     <div id="num-msg" class="w3-opacity"></div>
                     </p>
                     </p>
-                    <div id="num-details" style="padding-top:10px;">
-
-                    </div>
+                    <button class="collapsible w3-opacity">Details</button>
+                    <div id="num-details" class="collapsible-content"></div>
+                    <br />
                 </div>
 
                 <!--
@@ -503,6 +550,7 @@
 
     <!-- End Page Container -->
 </div>
+
 
 </body>
 

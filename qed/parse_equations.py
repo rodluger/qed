@@ -39,8 +39,6 @@ def parse_equation_analytical(expr, options, output):
 
 def parse_equation_numerical(expr, options, variables, output):
     """
-    TODO: Implement more granular reporting, with per-check statuses.
-          Also report the actual value of the differences.
 
     """
     # Get the user options
@@ -58,7 +56,7 @@ def parse_equation_numerical(expr, options, variables, output):
     for symbol in symbols:
         for n in range(ntests):
             sgn = -1 if np.random.random() < 0.5 else 1
-            subs[n][symbol] = sgn * np.exp(rng.uniform(low=-5, high=5))
+            subs[n][symbol] = sgn * 10 ** (rng.uniform(low=-5, high=5))
 
     # Substitute and evaluate
     results = [{} for n in range(ntests)]
